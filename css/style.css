@@ -268,6 +268,18 @@ section{position:relative}
 .pcard.open .pc-toggle{cursor:default;font-size:clamp(28px,2.6vw,40px)}
 .pc-art{grid-area:art;border-radius:16px;background:var(--night);border:1px solid var(--border);display:grid;place-items:center;overflow:hidden}
 .pc-art svg{width:min(72%,360px);height:auto;overflow:visible}
+.pc-art.has-img{background:none;border:0;display:flex;align-items:center;aspect-ratio:auto}
+.pc-art .browser{height:auto;width:100%}
+.pc-art .browser img{flex:none;height:auto;aspect-ratio:16/10} /* keep the screenshot's shape: crop only from the bottom */
+.art-svg{display:contents}
+/* browser frame around real project screenshots (cards and pop-up) */
+.browser{margin:0;height:100%;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:var(--night-2);border:1px solid var(--line-night);box-shadow:0 24px 50px -28px rgba(0,0,0,.7)}
+.browser-bar{flex:none;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:9px 12px;background:var(--night-2);border-bottom:1px solid var(--line-night)}
+.browser-bar::after{content:"";width:34px} /* balances the dots so the address sits centred */
+.b-dots{display:flex;gap:6px;width:34px}
+.b-dots i{width:7px;height:7px;border-radius:50%;background:#3A3D45}
+.b-url{justify-self:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--mono);font-size:11px;letter-spacing:.03em;color:var(--on-night-muted);background:var(--night);border:1px solid var(--line-night);border-radius:999px;padding:3px 14px}
+.browser img{flex:1;min-height:0;width:100%;height:100%;object-fit:cover;object-position:top;background:var(--night)}
 .pc-top{grid-area:top;display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:22px}
 .pc-line{grid-area:line;color:var(--fg-2);font-size:16px;max-width:46ch}
 .chips.pc-chips{grid-area:chips;margin:2px 0 0}
@@ -376,6 +388,8 @@ dialog[open]{animation:pop .45s var(--ease)}
 .meta dd{margin:0}
 .m-art{background:var(--night);border-radius:20px;aspect-ratio:21/8;display:grid;place-items:center;overflow:hidden}
 .m-art svg{width:min(42%,380px);height:auto;overflow:visible}
+.m-art.has-img{display:block;aspect-ratio:auto;background:none;border-radius:16px}
+.m-art .browser img{flex:none;height:auto;aspect-ratio:16/10;max-height:min(56vh,520px)}
 .m-body{display:grid;grid-template-columns:1fr 1fr;gap:36px}
 .m-body h4{font-family:var(--mono);font-size:12.5px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--fg-2);margin:0 0 12px}
 .m-body ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:9px;font-size:15.5px}
@@ -393,6 +407,7 @@ dialog[open]{animation:pop .45s var(--ease)}
   .pcard.open{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto auto 1fr;grid-template-areas:"art" "top" "title" "line" "chips" "acts";row-gap:12px;padding:10px 10px 0}
   .pcard.open>:not(.pc-art){padding-inline:12px}
   .pc-art{aspect-ratio:21/9}
+  .pc-art.has-img{aspect-ratio:auto}
   .pc-top{padding-top:6px}
   .door-leaf{padding:16px 14px 18px 30px}
   .door-leaf::before{left:10px;width:6px}
@@ -439,6 +454,7 @@ dialog[open]{animation:pop .45s var(--ease)}
   .pcard:not(.open)::after{content:"+";font-family:var(--mono);font-size:18px;color:var(--fg-2)}
   .pcard:not(.open) .pc-toggle span{writing-mode:horizontal-tb;transform:none;font-size:20px;white-space:normal}
   .pc-art{aspect-ratio:16/9}
+  .pc-art.has-img{aspect-ratio:auto}
   .pc-acts{padding-bottom:16px}
   .hero-strip span:nth-child(2){display:none}
   .me-badge{right:0}

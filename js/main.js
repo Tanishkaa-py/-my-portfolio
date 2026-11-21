@@ -266,51 +266,60 @@
   };
 
   /* ---------- projects (only what's on the CV and GitHub) ----------
-     areas: which door(s) the project sits behind. live: the public site ("" = none yet, no button shown).
-     code: [label, url] pairs. Projects without an overview have no "Read the story" pop-up. */
+     area: the one door the project sits behind. live: the public site ("" = none yet, no button shown).
+     code: [label, url] pairs. Projects without an overview have no "Read the story" pop-up.
+     img: a real screenshot in assets/projects/ (shown in a browser frame); without one, the `art` illustration is used. */
   const P = [
-    { id: 'rings', areas: ['genai', 'fullstack', 'data'], art: 'rings', title: '3Rings', kicker: 'AI product · 2026', badge: 'Leading now',
+    { id: 'rings', area: 'genai', art: 'rings',
+      img: { src: 'assets/projects/rings.webp', w: 1200, h: 750, url: '3rings.io', alt: '3Rings landing page: the headline "Let 3Rings Chase The Opportunities", a Start Free Trial button and a preview of the creator dashboard' },
+      title: '3Rings', kicker: 'AI product · 2026', badge: 'Leading now',
       line: 'One place for creators to see how their YouTube, Instagram and TikTok are growing, with AI advice based on real numbers.',
       meta: [['Role', 'Project Lead and AI full-stack developer'], ['Company', 'Persist Ventures (US)'], ['Status', 'In active development'], ['Stack', 'Next.js, TypeScript, PostgreSQL, Redis, Gemini, AWS']],
       overview: '3Rings is an AI-driven analytics and growth platform for content creators. It brings data from YouTube, Instagram and TikTok together and uses an LLM to turn performance signals into insights and recommendations.',
       did: ['Lead end-to-end delivery: architecture, product decisions and timelines, working with design, API-integration, product and management stakeholders', 'Designed the AI pipeline: platform data ingestion, signal extraction, Gemini inference and Redis-cached serving, on a 16-table PostgreSQL schema', 'Audited AI outputs, traced made-up metrics and ungrounded advice to their root cause, and re-scoped features around verified data', 'Deployed on AWS with CI/CD, leading the move to AWS RDS, and secured Google, Meta and TikTok platform approvals'],
       live: 'https://3rings.io', code: [] },
-    { id: 'chat', areas: ['ml', 'genai'], art: 'chat', title: 'Emotion-Aware Chatbot', kicker: 'AI research · 2025', badge: '1st prize ×2', win: true,
+    { id: 'chat', area: 'ml', art: 'chat', title: 'Emotion-Aware Chatbot', kicker: 'AI research · 2025', badge: '1st prize ×2', win: true,
       line: 'A supportive chatbot that recognises how someone feels and responds with care, built for people facing cyberbullying.',
       meta: [['Role', 'Developer and researcher'], ['Recognition', '1st prize, IIIM Hackathon 3.0 and IISU-ASSET 2025'], ['Accuracy', '95% emotion classification'], ['Stack', 'Python, Flan-T5, DistilBERT, LSTM, Hugging Face, Flask']],
       overview: 'A generative AI chatbot that first detects the emotion behind a message, then replies in a way that fits. It runs as a web app with real-time, multi-turn conversation.',
       did: ['Trained emotion classifiers (LSTM, Random Forest, Logistic Regression) reaching 95% accuracy with cross-validation, tuning and feature engineering', 'Built response generation with Flan-T5 and DistilBERT using RAG-style context injection', 'Deployed it as a Flask web app with real-time conversation', 'Won 1st prize at IIIM Hackathon 3.0 and at the IISU-ASSET 2025 poster presentation'],
       live: '', /* TODO: live link coming soon */ code: [] },
-    { id: 'vital', areas: ['genai', 'fullstack'], art: 'vital', title: 'VitalSync', kicker: 'Healthcare web app · 2026', badge: 'Production',
+    { id: 'vital', area: 'fullstack', art: 'vital', title: 'VitalSync', kicker: 'Healthcare web app · 2026', badge: 'Production',
       line: 'A healthcare dashboard where doctors and patients manage appointments, with an AI health assistant built in.',
       meta: [['Role', 'Full-stack developer'], ['Where', 'Prodesk internship'], ['Status', 'Built and deployed'], ['Stack', 'Next.js 14, TypeScript, MongoDB, Gemini API, JWT']],
       overview: 'VitalSync is a production-grade healthcare dashboard with separate experiences for doctors and patients, and a Gemini-powered assistant that answers health questions using the patient\'s context.',
       did: ['Built the AI Health Assistant with RAG-style context injection and careful prompt design', 'Implemented role-based access so doctors and patients each see only what they should', 'Designed the full REST API: JWT sign-in, CRUD routes, appointment scheduling and data validation', 'Deployed on Vercel and Render with CI/CD workflows'],
       live: 'https://vitalsync-frontend-eight.vercel.app/login', code: [['Frontend code', 'https://github.com/Tanishkaa-py/vitalsync-frontend'], ['Backend code', 'https://github.com/Tanishkaa-py/Vital-sync-backend']] },
-    { id: 'braille', areas: ['ml'], art: 'braille', title: 'Text-to-Braille Converter', kicker: 'Accessibility · AI + hardware', badge: 'Assistive tech',
+    { id: 'braille', area: 'ml', art: 'braille',
+      img: { src: 'assets/projects/braille.webp', w: 1200, h: 580, url: 'Text to Braille Converter', alt: 'Text-to-Braille Converter app: the word "hello" typed in and shown as five Braille cells' },
+      title: 'Text-to-Braille Converter', kicker: 'Accessibility · AI + hardware', badge: 'Assistive tech',
       line: 'Turns typed English into Braille, on screen and as raised physical dots through an Arduino, for visually impaired readers.',
       meta: [['Role', 'Developer'], ['Type', 'Computer vision and hardware'], ['Stack', 'Python, Flask, CNN, OpenCV, Arduino']],
       overview: 'A web app that converts English text into Braille and drives Arduino servo motors to produce tactile output, with a CNN that recognises Braille characters.',
       did: ['Built a CNN for multi-class Braille character recognition', 'Prepared images with OpenCV preprocessing and data augmentation, validated with cross-validation', 'Connected the app to Arduino servo motors over serial for real-time physical Braille output', 'Packaged the whole app to run on Windows'],
       live: '', /* TODO: live link */ code: [['Code', 'https://github.com/Tanishkaa-py/text-to-braille-project']] },
-    { id: 'flow', areas: ['genai'], art: 'flow', title: 'AI Automation Workflows', kicker: 'Agentic automation · 2025', badge: 'Client work',
+    { id: 'flow', area: 'genai', art: 'flow', title: 'AI Automation Workflows', kicker: 'Agentic automation · 2025', badge: 'Client work',
       line: 'Automated workflows that read, sort and summarise business information on their own, so teams do less manual work.',
       meta: [['Role', 'AI automation intern'], ['Where', 'KodeCrave, for international clients'], ['Stack', 'N8N, LLM nodes, REST APIs, webhooks, ETL']],
       overview: 'Multi-step agentic workflows built in N8N that use LLMs to classify, summarise and route information between business tools.',
       did: ['Designed N8N workflows combining LLM nodes, REST APIs and ETL pipelines', 'Built AI-driven classification, summarisation and process intelligence steps', 'Added error handling, data validation and JSON transformations so pipelines run reliably', 'Tracked pipeline performance with MLOps-style monitoring'],
       live: '', code: [] },
-    { id: 'bi', areas: ['data'], art: 'bi', title: 'Executive Reporting Dashboards', kicker: 'Data analytics · 2024', badge: '30% faster',
+    { id: 'bi', area: 'data', art: 'bi', title: 'Executive Reporting Dashboards', kicker: 'Data analytics · 2024', badge: '30% faster',
       line: 'Power BI dashboards and automated reports that helped senior leaders make faster, data-backed decisions.',
       meta: [['Role', 'Data analyst intern'], ['Where', 'Celebal Technologies'], ['Stack', 'SQL, Python, Power Query, Power BI']],
       overview: 'Analysis and reporting work on large datasets, turned into executive dashboards and automated reporting pipelines.',
       did: ['Queried large datasets with complex SQL joins and aggregations for statistical analysis, A/B testing and predictive analytics', 'Automated reporting workflows with Python and Power Query, making reporting 30% faster', 'Built executive Power BI dashboards focused on clear data storytelling'],
       live: '', code: [] },
     // smaller GitHub projects: one line each, so no pop-up
-    { id: 'cine', areas: ['fullstack'], art: 'code', title: 'CineStream', kicker: 'Public repo',
+    { id: 'cine', area: 'fullstack', art: 'code',
+      img: { src: 'assets/projects/cine.webp', w: 1200, h: 750, url: 'cine-stream-6nno.vercel.app', alt: 'CineStream home page: movie search, the AI Mood Matcher and a row of trending movie posters' },
+      title: 'CineStream', kicker: 'Public repo',
       line: 'Netflix-style movie discovery with infinite scroll, favourites and AI mood-based recommendations.',
       meta: [['Stack', 'React']],
       live: 'https://cine-stream-6nno.vercel.app/', code: [['Code', 'https://github.com/Tanishkaa-py/Cine-Stream']] },
-    { id: 'chatroom', areas: ['fullstack'], art: 'code', title: 'Live Chat Room', kicker: 'Public repo',
+    { id: 'chat-room', area: 'fullstack', art: 'code',
+      img: { src: 'assets/projects/chat-room.webp', w: 1200, h: 750, url: 'live-chat-room-psi.vercel.app', alt: 'Live Chat Room join screen: a name field and a choice of the General or Tech Support room' },
+      title: 'Live Chat Room', kicker: 'Public repo',
       line: 'Messages appear instantly across every open browser, built to learn real-time communication.',
       meta: [['Stack', 'Socket.io, React']],
       live: 'https://live-chat-room-psi.vercel.app/', code: [['Code', 'https://github.com/Tanishkaa-py/live-chat-room']] }
@@ -318,6 +327,12 @@
   const isUrl = u => /^https?:\/\//.test(u || '');
   const stackOf = p => ((p.meta.find(m => m[0] === 'Stack') || [])[1] || '').split(', ').filter(Boolean);
   const pad = n => String(n).padStart(2, '0');
+  // a real screenshot inside a minimal browser window (dots + address bar), or the illustration if there's none
+  const shot = p => p.img ? `
+    <figure class="browser">
+      <div class="browser-bar" aria-hidden="true"><span class="b-dots"><i></i><i></i><i></i></span><span class="b-url">${p.img.url}</span></div>
+      <img src="${p.img.src}" width="${p.img.w}" height="${p.img.h}" alt="${p.img.alt.replace(/"/g, '&quot;')}" loading="lazy" decoding="async">
+    </figure>` : `<div class="art-svg" aria-hidden="true">${ART[p.art]}</div>`;
   const mqTab = matchMedia('(max-width:1000px)'), mqPhone = matchMedia('(max-width:620px)');
 
   /* ---------- project pop-up ---------- */
@@ -328,7 +343,7 @@
     $('#mKicker').textContent = p.kicker; $('#mTitle').textContent = p.title; $('#mLead').textContent = p.line;
     $('#mMeta').innerHTML = p.meta.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
     $('#mLinks').innerHTML = links.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener" data-hover>${t} ↗</a>`).join('');
-    $('#mArt').innerHTML = ART[p.art]; $('#mOverview').textContent = p.overview;
+    $('#mArt').innerHTML = shot(p); $('#mArt').classList.toggle('has-img', !!p.img); $('#mOverview').textContent = p.overview;
     $('#mDid').innerHTML = p.did.map(d => `<li>${d}</li>`).join('');
     modal.showModal ? modal.showModal() : modal.setAttribute('open', '');
     lenis && lenis.stop();
@@ -347,7 +362,7 @@
       { id: 'fullstack', name: 'Full Stack', k: 'From idea to live product', d: 'I take an idea from database design to a deployed web app, with secure sign-in, APIs and the AI built in.', c: ['Next.js', 'React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS'], art: 'code' }
     ];
     const doors = $('#doors'), rooms = $('#rooms');
-    const inArea = a => P.filter(p => p.areas.includes(a.id));
+    const inArea = a => P.filter(p => p.area === a.id);
 
     doors.innerHTML = AREAS.map((a, i) => { const n = inArea(a).length; return `
       <button class="door" type="button" id="door-${a.id}" aria-expanded="false" aria-controls="room-${a.id}" data-hover>
@@ -372,7 +387,7 @@
       return `
         <article class="pcard${open ? ' open' : ''}">
           <h4 class="pc-title"><button class="pc-toggle" type="button" aria-expanded="${open}" data-hover><span>${p.title}</span></button></h4>
-          <div class="pc-art" aria-hidden="true">${ART[p.art]}</div>
+          <div class="pc-art${p.img ? ' has-img' : ''}">${shot(p)}</div>
           <div class="pc-top"><span class="mono">${p.kicker}</span>${p.badge ? `<span class="badge${p.win ? ' win' : ''}">${p.badge}</span>` : ''}</div>
           <p class="pc-line">${p.line}</p>
           <div class="chips pc-chips">${stackOf(p).map(s => `<span class="chip">${s}</span>`).join('')}</div>
@@ -388,21 +403,23 @@
         <div class="deck">${inArea(a).map((p, j) => card(p, j === 0)).join('')}</div>
       </div>`).join('');
 
-    // one room open at a time; the open door stays ajar so you can see which room you're in
+    // all doors start closed. One room open at a time; the open door stays ajar so you can see which room you're in.
+    // Clicking the open door again closes it. show(-1) closes everything.
     const doorEls = $$('.door', doors), roomEls = $$('.room', rooms);
     let cur = -1;
-    const show = (i, fromClick) => {
+    const show = (i, scroll) => {
       if (i === cur) return; cur = i;
       doorEls.forEach((d, j) => d.setAttribute('aria-expanded', j === i));
       roomEls.forEach((r, j) => { r.hidden = j !== i; });
       // on short screens the room can start below the fold: bring its top into view
-      if (fromClick) {
+      if (scroll && i > -1) {
         const r = roomEls[i], top = r.getBoundingClientRect().top;
         if (top > innerHeight * .8) lenis ? lenis.scrollTo(r, { offset: -90 }) : r.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
       }
     };
-    doorEls.forEach((d, i) => d.addEventListener('click', () => show(i, true)));
-    show(0);
+    doorEls.forEach((d, i) => d.addEventListener('click', () => show(i === cur ? -1 : i, true)));
+    // public hook for a guided tour: openDoor('data' | 'ml' | 'genai' | 'fullstack') opens that room (never toggles it shut)
+    window.openDoor = area => { const i = AREAS.findIndex(a => a.id === area); if (i < 0) return false; show(i, true); return true; };
 
     // expanding cards: one wide at a time; hover (mouse, wide layout) or click opens one
     const openCard = c => {
