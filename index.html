@@ -29,7 +29,7 @@
   <div class="topbar-mid"><span class="live"></span>Open to Data, AI &amp; Full Stack roles</div>
   <div class="topbar-right">
     <span class="clock-chip" aria-label="Local time in Jaipur">Jaipur <b id="clock">--:--</b><i id="today"></i></span>
-    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu" data-hover><span class="bars" aria-hidden="true"></span>Menu</button>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu" data-hover><span class="bars" aria-hidden="true"></span><span id="menuLabel">Menu</span></button>
   </div>
 </header>
 
@@ -60,11 +60,12 @@
       <p class="eyebrow"><span class="live"></span>Data Scientist · AI Engineer · Jaipur</p>
       <h1>Hi, I'm Tanishka.<span class="iam">I am a</span></h1>
 
-      <div class="flip" id="flip" aria-live="polite">
+      <div class="flip" id="flip">
+        <p class="sr-only" id="flipAll"></p>
         <div class="rings" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <div class="flip-stack" aria-hidden="true"><span></span><span></span></div>
-        <div class="flip-page" id="flipPage"><span class="flip-word" id="flipWord">Data Scientist</span><span class="flip-count" id="flipCount">01 / 04</span></div>
-        <div class="flip-page next" id="flipNext"><span class="flip-word"></span><span class="flip-count"></span></div>
+        <div class="flip-page" id="flipPage" aria-hidden="true"><span class="flip-word" id="flipWord">Data Scientist</span><span class="flip-count" id="flipCount">01 / 04</span></div>
+        <div class="flip-page next" id="flipNext" aria-hidden="true"><span class="flip-word"></span><span class="flip-count"></span></div>
       </div>
 
       <div class="btns">
@@ -128,7 +129,7 @@
 <section class="skills-sec paper" id="skills">
   <div class="wrap">
     <div class="sec-head"><span class="mono">(03) What I do</span><span class="mono">Usually on the same project</span></div>
-    <div class="skill-stage" id="skillStage">
+    <div class="skill-stage" id="skillStage" role="tabpanel" aria-labelledby="tab0">
       <div class="skill-text">
         <p class="kicker" id="skKicker"></p>
         <h2 class="big" id="skTitle"></h2>
@@ -148,9 +149,11 @@
       <div class="story-sticky">
         <span class="mono">(04) My story</span>
         <h2 class="story-title">Let's go back in time.</h2>
-        <div class="year" id="year" aria-hidden="true"></div>
-        <p class="mono story-range" id="storyRange">Jun 2026 to now</p>
-        <div class="story-progress"><span id="storyIdx">01</span> / <span id="storyTotal">07</span><i><b id="storyBar"></b></i></div>
+        <div class="story-now">
+          <div class="year" id="year" aria-hidden="true"></div>
+          <p class="mono story-range" id="storyRange">Jun 2026 to now</p>
+          <div class="story-progress"><span id="storyIdx">01</span> / <span id="storyTotal">07</span><i><b id="storyBar"></b></i></div>
+        </div>
       </div>
     </div>
     <ol class="story-list" id="storyList">

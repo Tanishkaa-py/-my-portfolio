@@ -16,9 +16,14 @@
     requestAnimationFrame(raf);
   }
   const goTo = hash => {
-    const el = hash === '#top' ? document.body : $(hash);
+    const el = $(hash);
     if (!el) return;
-    lenis ? lenis.scrollTo(el, { offset: hash === '#top' ? 0 : -10 }) : el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    const top = hash === '#top';
+    if (lenis) lenis.scrollTo(top ? 0 : el, { offset: top ? 0 : -10 });
+    else top ? scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }) : el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    // move keyboard focus too, so the next Tab continues from the section, not the link
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+    el.focus({ preventScroll: true });
   };
   document.addEventListener('click', e => {
     const a = e.target.closest('a[href^="#"]');
@@ -49,11 +54,21 @@
   }
 
   /* ---------- menu ---------- */
-  const menu = $('#menu'), menuBtn = $('#menuBtn');
-  function openMenu() { menu.hidden = false; requestAnimationFrame(() => menu.classList.add('open')); menuBtn.setAttribute('aria-expanded', 'true'); document.body.classList.add('menu-open'); lenis && lenis.stop(); }
-  function closeMenu() { if (!menu.classList.contains('open')) return; menu.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); document.body.classList.remove('menu-open'); lenis && lenis.start(); setTimeout(() => { if (!menu.classList.contains('open')) menu.hidden = true; }, 700); }
+  const menu = $('#menu'), menuBtn = $('#menuBtn'), menuLabel = $('#menuLabel'), main = $('main');
+  function openMenu() {
+    menu.hidden = false; requestAnimationFrame(() => menu.classList.add('open'));
+    menuBtn.setAttribute('aria-expanded', 'true'); menuLabel.textContent = 'Close';
+    document.body.classList.add('menu-open'); main.inert = true; lenis && lenis.stop();
+    $('a', menu).focus();
+  }
+  function closeMenu() {
+    if (!menu.classList.contains('open')) return;
+    menu.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); menuLabel.textContent = 'Menu';
+    document.body.classList.remove('menu-open'); main.inert = false; lenis && lenis.start();
+    setTimeout(() => { if (!menu.classList.contains('open')) menu.hidden = true; }, 700);
+  }
   menuBtn.addEventListener('click', () => menu.classList.contains('open') ? closeMenu() : openMenu());
-  addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && menu.classList.contains('open')) { closeMenu(); menuBtn.focus(); } });
 
   /* ---------- hero dust: a slowly turning sphere of data points ---------- */
   (() => {
@@ -96,7 +111,9 @@
   (() => {
     const words = ['Data Scientist', 'AI Engineer', 'Data Analyst', 'Full Stack Developer'];
     const page = $('#flipPage'), next = $('#flipNext');
-    let i = 0;
+    $('#flipAll').textContent = words.slice(0, -1).join(', ') + ' and ' + words[words.length - 1];
+    let i = 0, onScreen = true;
+    new IntersectionObserver(([en]) => { onScreen = en.isIntersecting; }).observe($('#flip'));
     const label = n => `${String(n + 1).padStart(2, '0')} / ${String(words.length).padStart(2, '0')}`;
     const step = () => {
       const n = (i + 1) % words.length;
@@ -109,27 +126,29 @@
         page.classList.remove('turn'); i = n;
       }, { once: true });
     };
-    if (!reduce) setInterval(step, 2800);
-    else setInterval(() => { i = (i + 1) % words.length; $('#flipWord').textContent = words[i]; $('#flipCount').textContent = label(i); }, 3500);
+    if (!reduce) setInterval(() => { if (onScreen && !document.hidden) step(); }, 2800);
   })();
 
   /* ---------- darkroom portrait: colour develops under the cursor ---------- */
   (() => {
     const me = $('#me');
-    let r = 0, target = 0, x = 50, y = 40, tx = 50, ty = 40;
+    let r = 0, target = 0, x = 50, y = 40, tx = 50, ty = 40, raf = 0;
+    const ease = reduce ? 1 : null; // reduced motion: follow the cursor with no easing
+    const paint = () => { me.style.setProperty('--r', r.toFixed(1) + 'px'); me.style.setProperty('--x', x + '%'); me.style.setProperty('--y', y + '%'); };
+    const loop = () => {
+      r += (target - r) * (ease || .12); x += (tx - x) * (ease || .2); y += (ty - y) * (ease || .2);
+      const settled = Math.abs(target - r) < .3 && Math.abs(tx - x) < .05 && Math.abs(ty - y) < .05;
+      if (settled) { r = target; x = tx; y = ty; }
+      paint(); raf = settled ? 0 : requestAnimationFrame(loop);
+    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
     me.addEventListener('pointermove', e => {
       if (e.pointerType !== 'mouse') return;
       const b = me.getBoundingClientRect(); tx = (e.clientX - b.left) / b.width * 100; ty = (e.clientY - b.top) / b.height * 100; target = 110;
-      me.classList.add('touched');
+      me.classList.add('touched'); kick();
     });
-    me.addEventListener('pointerleave', () => { target = 0; });
+    me.addEventListener('pointerleave', () => { target = 0; kick(); });
     me.addEventListener('click', e => { if (e.pointerType === 'mouse') return; me.classList.toggle('full'); me.classList.add('touched'); });
-    const loop = () => {
-      r += (target - r) * .12; x += (tx - x) * .2; y += (ty - y) * .2;
-      me.style.setProperty('--r', r.toFixed(1) + 'px'); me.style.setProperty('--x', x + '%'); me.style.setProperty('--y', y + '%');
-      requestAnimationFrame(loop);
-    };
-    loop();
   })();
 
   /* ---------- magnetic buttons ---------- */
@@ -223,19 +242,35 @@
   ];
   const grid = $('#workGrid');
   grid.innerHTML = P.map(p => `
-    <button class="card" data-id="${p.id}" data-cat="${p.cat.join(' ')}" data-hover aria-label="Open ${p.title} details">
-      <div class="art">${ART[p.art]}</div>
+    <article class="card" data-id="${p.id}" data-cat="${p.cat.join(' ')}" data-hover>
+      <div class="art" aria-hidden="true">${ART[p.art]}</div>
       <div class="card-body">
         <div class="card-top"><span class="mono">${p.kicker}</span><span class="badge${p.win ? ' win' : ''}">${p.badge}</span></div>
-        <h3>${p.title}</h3><p>${p.line}</p>
-        <span class="more">Read the story <i aria-hidden="true">→</i></span>
+        <h3><button class="card-open" type="button" aria-haspopup="dialog">${p.title}</button></h3><p>${p.line}</p>
+        <span class="more" aria-hidden="true">Read the story <i>→</i></span>
       </div>
-    </button>`).join('');
+    </article>`).join('');
+
+  // Layout: desktop is a 6-column grid. Pick spans so no row is left half empty:
+  // a final row of three, rows of two above it, and one wide card first if the count needs it.
+  const mqTab = matchMedia('(max-width:1000px)'), mqPhone = matchMedia('(max-width:620px)');
+  const layoutCards = () => {
+    const vis = $$('.card', grid).filter(c => !c.hidden), n = vis.length;
+    let spans, wideSpan = 6;
+    if (mqPhone.matches) { spans = vis.map(() => 1); wideSpan = 0; }
+    else if (mqTab.matches) { spans = vis.map((_, i) => n % 2 && i === 0 ? 2 : 1); wideSpan = 2; }
+    else if (n < 3) spans = n === 1 ? [6] : [3, 3];
+    else { const rest = n - 3; spans = [...(rest % 2 ? [6] : []), ...Array(rest - rest % 2).fill(3), 2, 2, 2]; }
+    vis.forEach((c, i) => { c.style.gridColumn = `span ${spans[i]}`; c.classList.toggle('wide', spans[i] === wideSpan); });
+  };
+  layoutCards();
+  [mqTab, mqPhone].forEach(m => m.addEventListener('change', layoutCards));
 
   $$('.filter').forEach(b => b.addEventListener('click', () => {
     $$('.filter').forEach(x => x.setAttribute('aria-pressed', x === b));
     const f = b.dataset.f;
     $$('.card', grid).forEach(c => { c.hidden = f !== 'all' && !c.dataset.cat.split(' ').includes(f); });
+    layoutCards();
   }));
 
   if (fine && !reduce) $$('.card', grid).forEach(c => {
@@ -268,17 +303,23 @@
       { t: 'Full Stack Products', k: 'From idea to live product', d: 'I take an idea from database design to a deployed web app, with secure sign-in, APIs and the AI built in.', c: ['Next.js', 'React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS'], a: 'code' }
     ];
     const tabs = $('#tabs'); let cur = 0;
-    tabs.innerHTML = S.map((s, i) => `<button class="tab" role="tab" id="tab${i}" aria-selected="${i === 0}" aria-controls="skillStage" data-i="${i}" data-hover><span class="bar"></span><span class="n">0${i + 1}</span>${s.t}</button>`).join('');
+    tabs.innerHTML = S.map((s, i) => `<button class="tab" role="tab" id="tab${i}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" aria-controls="skillStage" data-i="${i}" data-hover><span class="bar"></span><span class="n">0${i + 1}</span>${s.t}</button>`).join('');
     const show = i => {
       cur = i; const s = S[i];
-      $$('.tab', tabs).forEach((t, j) => t.setAttribute('aria-selected', j === i));
+      $$('.tab', tabs).forEach((t, j) => { t.setAttribute('aria-selected', j === i); t.tabIndex = j === i ? 0 : -1; });
+      $('#skillStage').setAttribute('aria-labelledby', `tab${i}`);
       $('#skKicker').textContent = s.k; $('#skTitle').textContent = s.t; $('#skDesc').textContent = s.d;
       $('#skChips').innerHTML = s.c.map(c => `<span class="chip">${c}</span>`).join('');
       $('#skArt').innerHTML = ART[s.a];
       $$('.skill-text > *').forEach(el => { el.style.animation = 'none'; el.offsetHeight; el.style.animation = ''; });
     };
-    tabs.addEventListener('click', e => { const t = e.target.closest('.tab'); if (t) show(+t.dataset.i); });
-    tabs.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { show((cur + 1) % S.length); $(`#tab${cur}`).focus(); } if (e.key === 'ArrowLeft') { show((cur + S.length - 1) % S.length); $(`#tab${cur}`).focus(); } });
+    const manual = () => tabs.classList.add('manual'); // visitor picked a tab: stop auto-advancing
+    tabs.addEventListener('click', e => { const t = e.target.closest('.tab'); if (t) { manual(); show(+t.dataset.i); } });
+    tabs.addEventListener('keydown', e => {
+      const to = { ArrowRight: (cur + 1) % S.length, ArrowLeft: (cur + S.length - 1) % S.length, Home: 0, End: S.length - 1 }[e.key];
+      if (to === undefined) return;
+      e.preventDefault(); manual(); show(to); $(`#tab${cur}`).focus();
+    });
     if (!reduce) tabs.addEventListener('animationend', e => { if (e.target.classList.contains('bar')) show((cur + 1) % S.length); });
     show(0);
   })();
@@ -317,7 +358,18 @@
     { n: 'Intermediate SQL for Data Scientists', i: 'LinkedIn Learning · 2024', m: 'in', bg: '#0A66C2' },
     { n: 'Mastering Data with Machine Learning', i: 'IBM SkillsBuild · 2024', m: 'IBM', bg: '#0F62FE' }
   ];
-  $('#certs').innerHTML = C.map(c => `<article class="cert${c.f ? ' featured' : ''}" data-hover><div class="issuer"><span class="logo-dot" style="background:${c.bg}">${c.m}</span>${c.i}</div><h4>${c.n}</h4></article>`).join('');
+  const certList = [...C.filter(c => c.f), ...C.filter(c => !c.f)];
+  $('#certs').innerHTML = certList.map(c => `<article class="cert${c.f ? ' featured' : ''}" data-hover><div class="issuer"><span class="logo-dot" style="background:${c.bg}">${c.m}</span>${c.i}</div><h4>${c.n}</h4></article>`).join('');
+  // split n cards into the fewest rows of at most `max`, as evenly as possible; each card spans 12 / row length
+  const rowSpans = (n, max) => { const out = []; let left = n; for (let r = Math.ceil(n / max); r > 0; r--) { const len = Math.ceil(left / r); out.push(...Array(len).fill(12 / len)); left -= len; } return out; };
+  const layoutCerts = () => {
+    const [fMax, oMax] = mqPhone.matches ? [1, 1] : mqTab.matches ? [2, 2] : [3, 4];
+    const cards = $$('#certs .cert'), nF = certList.filter(c => c.f).length;
+    const spans = [...rowSpans(nF, fMax), ...rowSpans(cards.length - nF, oMax)];
+    cards.forEach((el, i) => { el.style.gridColumn = `span ${spans[i]}`; });
+  };
+  layoutCerts();
+  [mqTab, mqPhone].forEach(m => m.addEventListener('change', layoutCerts));
 
   /* ---------- GitHub repos ---------- */
   const R = [
