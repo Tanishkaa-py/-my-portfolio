@@ -37,13 +37,11 @@
 
 <nav class="menu" id="menu" aria-label="Site" hidden>
   <ol>
-    <li><a href="#work" data-hover><span>01</span>Work</a></li>
-    <li><a href="#about" data-hover><span>02</span>About</a></li>
-    <li><a href="#skills" data-hover><span>03</span>What I do</a></li>
-    <li><a href="#story" data-hover><span>04</span>My story</a></li>
-    <li><a href="#recognition" data-hover><span>05</span>Awards &amp; certifications</a></li>
-    <li><a href="#github" data-hover><span>06</span>GitHub</a></li>
-    <li><a href="#contact" data-hover><span>07</span>Contact</a></li>
+    <li><a href="#about" data-hover><span>01</span>About</a></li>
+    <li><a href="#work" data-hover><span>02</span>Behind the doors</a></li>
+    <li><a href="#story" data-hover><span>03</span>My story</a></li>
+    <li><a href="#recognition" data-hover><span>04</span>Recognition</a></li>
+    <li><a href="#contact" data-hover><span>05</span>Contact</a></li>
   </ol>
   <div class="menu-foot">
     <a href="https://www.linkedin.com/in/tanishkajain16/" target="_blank" rel="noopener" data-hover>LinkedIn ↗</a>
@@ -109,37 +107,13 @@
   </div>
 </section>
 
-<!-- ===== Work ===== -->
-<section class="work-sec" id="work" data-theme="light">
+<!-- ===== Behind the doors: one door per area, each opens a room of projects (built in main.js) ===== -->
+<section class="doors-sec" id="work" data-theme="dark">
   <div class="wrap">
-    <div class="sec-head"><span class="mono">(02) Selected work</span><span class="mono">Click a project for the full story</span></div>
-    <div class="title-row">
-      <h2 class="big">Things I've built</h2>
-      <div class="filters" role="group" aria-label="Filter projects">
-        <button class="filter" aria-pressed="true" data-f="all" data-hover>All</button>
-        <button class="filter" aria-pressed="false" data-f="ai" data-hover>AI &amp; ML</button>
-        <button class="filter" aria-pressed="false" data-f="data" data-hover>Data</button>
-        <button class="filter" aria-pressed="false" data-f="web" data-hover>Web apps</button>
-      </div>
-    </div>
-    <div class="work" id="workGrid"></div>
-  </div>
-</section>
-
-<!-- ===== What I do (tabs) ===== -->
-<section class="skills-sec" id="skills" data-theme="dark">
-  <div class="wrap">
-    <div class="sec-head"><span class="mono">(03) What I do</span><span class="mono">Usually on the same project</span></div>
-    <div class="skill-stage" id="skillStage" role="tabpanel" aria-labelledby="tab0">
-      <div class="skill-text">
-        <p class="kicker" id="skKicker"></p>
-        <h2 class="big" id="skTitle"></h2>
-        <p class="skill-desc" id="skDesc"></p>
-        <div class="chips" id="skChips"></div>
-      </div>
-      <div class="skill-art" id="skArt" aria-hidden="true"></div>
-    </div>
-    <div class="tabs" role="tablist" aria-label="Skill areas" id="tabs"></div>
+    <div class="sec-head"><span class="mono">(02) Work</span><span class="mono">Pick a door to step inside</span></div>
+    <h2 class="big">Behind the doors</h2>
+    <div class="doors" id="doors"></div>
+    <div class="rooms" id="rooms"></div>
   </div>
 </section>
 
@@ -148,7 +122,7 @@
   <div class="wrap story-grid">
     <div class="story-left">
       <div class="story-sticky">
-        <span class="mono">(04) My story</span>
+        <span class="mono">(03) My story</span>
         <h2 class="story-title">Let's go back in time.</h2>
         <div class="story-now">
           <div class="year" id="year" aria-hidden="true"></div>
@@ -207,7 +181,7 @@
 <!-- ===== Recognition & certifications ===== -->
 <section class="recog" id="recognition" data-theme="light">
   <div class="wrap">
-    <div class="sec-head"><span class="mono">(05) Recognition</span><span class="mono">Awards, certifications, education</span></div>
+    <div class="sec-head"><span class="mono">(04) Recognition</span><span class="mono">Awards, certifications, education</span></div>
     <h2 class="big">Awards &amp; certifications</h2>
 
     <div class="awards">
@@ -243,23 +217,10 @@
   </div>
 </section>
 
-<!-- ===== GitHub ===== -->
-<section class="gh" id="github" data-theme="dark">
-  <div class="wrap">
-    <div class="sec-head"><span class="mono">(06) GitHub</span><a class="mono" href="https://github.com/Tanishkaa-py" target="_blank" rel="noopener" data-hover>github.com/Tanishkaa-py ↗</a></div>
-    <div class="title-row">
-      <h2 class="big">More from my GitHub</h2>
-      <p class="gh-sub">Real-time apps, AI tools and dashboards I've built while learning and shipping.</p>
-    </div>
-    <div class="repos" id="repos"></div>
-    <a class="btn ghost magnetic" href="https://github.com/Tanishkaa-py?tab=repositories" target="_blank" rel="noopener" data-hover>See all 17 repositories ↗</a>
-  </div>
-</section>
-
 <!-- ===== Contact ===== -->
 <section class="contact" id="contact" data-theme="accent">
   <div class="wrap">
-    <span class="mono">(07) Contact</span>
+    <span class="mono">(05) Contact</span>
     <h2 class="huge">Let's build<br>something <em>useful.</em></h2>
     <div class="contact-row">
       <p>Hiring for a data, AI or full-stack role, or have a project in mind? I usually reply within a day.</p>

@@ -20,6 +20,8 @@
   --line-accent:#3A469F;
   --on-accent-muted:#B3B9E6; /* 7.3:1 on deep blue */
   --glow:#8E9BFF;         /* periwinkle, on night */
+  --safe-red:#FF5A4E;     /* door safelight: developing */
+  --safe-green:#3DD68C;   /* door safelight: enter (same green as the 'open to work' dot) */
   --gold:#C99A2E;         /* awards only */
   --gold-deep:#7A580D;    /* gold text on paper */
   --on-night:#EDEBE6;
@@ -211,34 +213,70 @@ section{position:relative}
 .stat .unit{font-family:var(--display);font-size:22px;color:var(--fg-2);padding-bottom:8px}
 .stat p{grid-column:1/-1;color:var(--fg-2);font-size:14.5px;margin-top:14px;max-width:24ch}
 
-/* work */
-.work-sec{padding:120px 0 40px}
-.filters{display:flex;gap:8px;flex-wrap:wrap}
-.filter{padding:9px 18px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:14.5px;color:var(--fg-2);transition:background .2s,color .2s,border-color .2s}
-.filter:hover{color:var(--fg);border-color:var(--fg)}
-.filter[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-.work{display:grid;grid-template-columns:repeat(6,1fr);gap:18px}
-.card{all:unset;box-sizing:border-box;position:relative;grid-column:span 2;background:var(--surface);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transform-style:preserve-3d;transition:box-shadow .4s var(--ease);will-change:transform}
-.card:hover{box-shadow:0 30px 60px -30px rgba(0,0,0,.35)}
-.card:has(.card-open:focus-visible){outline:2px solid var(--focus);outline-offset:3px}
-.card-open{all:unset;cursor:pointer}
-.card-open::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit} /* whole card is clickable */
-.card.wide{flex-direction:row}
-.card.wide .art{flex:1.1 1 0;aspect-ratio:auto;min-height:280px}
-.card.wide .art svg{width:min(62%,380px)}
-.card.wide .card-body{flex:1 1 0;justify-content:center;padding:28px 36px 28px 18px}
-.card.wide .more{margin-top:10px}
-.card[hidden]{display:none}
-.card .art{margin:10px;border-radius:18px;background:var(--night);aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden;position:relative}
-.card .art svg{width:62%;height:auto;overflow:visible;transition:transform .6s var(--ease)}
-.card:hover .art svg{transform:scale(1.06)}
-.card-body{padding:10px 24px 24px;display:flex;flex-direction:column;gap:10px;flex:1}
-.card-top{display:flex;justify-content:space-between;gap:10px;align-items:center}
-.card h3{font-size:clamp(24px,2.2vw,30px)}
-.card p{color:var(--fg-2);font-size:15.5px}
-.card .more{margin-top:auto;padding-top:6px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--link)}
-.card .more i{font-style:normal;transition:transform .3s var(--ease)}
-.card:hover .more i{transform:translateX(6px)}
+/* behind the doors: darkroom doors with a safelight above each (red = developing, green = enter) */
+@property --lamp{syntax:"<color>";inherits:true;initial-value:#FF5A4E}
+.doors-sec{padding:120px 0 120px}
+.doors-sec .big{margin-bottom:56px}
+.doors{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,2vw,28px)}
+.door{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:14px;border-radius:12px;--lamp:var(--safe-red);transition:--lamp .35s}
+.door:hover,.door:focus-visible{--lamp:var(--safe-green)}
+.door:focus-visible{outline:2px solid var(--focus);outline-offset:6px}
+.safelight{display:flex;align-items:center;gap:9px;padding:6px 13px 6px 9px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--lamp)}
+.safelight i{width:9px;height:9px;border-radius:50%;background:var(--lamp);box-shadow:0 0 0 3px color-mix(in srgb,var(--lamp) 22%,transparent),0 0 16px 2px var(--lamp)}
+.sl-on,.door:hover .sl-off,.door:focus-visible .sl-off{display:none}
+.door:hover .sl-on,.door:focus-visible .sl-on{display:inline}
+/* frame (the jamb), the lit room behind it, and the leaf that swings inward on its left hinge */
+.door-frame{position:relative;width:100%;aspect-ratio:5/7.2;border-radius:10px;background:var(--bg);border:1px solid var(--border);perspective:1100px}
+.door-inside,.door-leaf{position:absolute;inset:7px;border-radius:5px}
+.door-inside{overflow:hidden;display:grid;place-items:center;background:radial-gradient(90% 60% at 50% 0%,color-mix(in srgb,var(--safe-red) 34%,transparent),transparent 72%),#0A0707}
+.door-inside svg{width:80%;height:auto;overflow:visible;opacity:.85}
+.door-leaf{transform-origin:0 50%;transition:transform .75s cubic-bezier(.3,.7,.2,1),box-shadow .75s var(--ease);backface-visibility:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:20px 20px 22px 38px;text-align:left;
+  background:radial-gradient(120% 45% at 50% -10%,color-mix(in srgb,var(--lamp) 18%,transparent),transparent 70%),linear-gradient(172deg,var(--surface-hi),var(--surface));border:1px solid color-mix(in srgb,var(--fg) 8%,transparent)}
+.door-leaf::before{content:"";position:absolute;left:12px;top:16px;bottom:16px;width:7px;border-radius:2px;background:repeating-linear-gradient(to bottom,var(--bg) 0 9px,transparent 9px 17px)} /* film sprockets along the hinge */
+.door-leaf::after{content:"";position:absolute;inset:10px 10px 10px 28px;border:1px solid color-mix(in srgb,var(--fg) 8%,transparent);border-radius:3px;pointer-events:none} /* light-tight seal */
+.door:hover .door-leaf{transform:rotateY(10deg)}
+.door[aria-expanded="true"] .door-leaf{transform:rotateY(66deg);box-shadow:-24px 0 50px -16px rgba(0,0,0,.85)}
+.door-no{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-2)}
+.door-label{display:flex;flex-direction:column;gap:8px;padding-right:14px}
+.door-name{font-family:var(--display);font-weight:600;font-size:clamp(20px,2.1vw,30px);letter-spacing:-.025em;line-height:1.04;color:var(--fg);text-wrap:balance}
+.door-count{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-2)}
+.door-pull{position:absolute;right:16px;top:50%;width:4px;height:56px;margin-top:-28px;border-radius:3px;background:color-mix(in srgb,var(--fg) 22%,transparent)}
+
+/* rooms */
+.rooms{margin-top:72px}
+.room{animation:fadeUp .6s var(--ease) both}
+.room-head{display:grid;grid-template-columns:1fr 1fr;gap:20px 40px;align-items:end;padding-top:28px;border-top:1px solid var(--border);margin-bottom:32px}
+.room-head .kicker{margin-bottom:12px}
+.room-title{font-size:clamp(32px,3.6vw,52px);letter-spacing:-.035em}
+.room-desc{color:var(--fg-2);font-size:17px;max-width:52ch}
+.room-head .chips{margin-top:16px}
+/* expanding cards: one open wide, the rest narrow with their title running vertically */
+.deck{display:flex;gap:12px;height:470px}
+.pcard{position:relative;flex:0 0 76px;min-width:0;border-radius:22px;background:var(--surface);border:1px solid var(--border);overflow:hidden;transition:flex-grow .65s var(--ease),background .25s,border-color .25s}
+.pcard:not(.open){display:flex;align-items:flex-end;justify-content:center;padding:22px 0}
+.pcard:not(.open):hover{background:var(--surface-hi);border-color:color-mix(in srgb,var(--fg) 28%,transparent)}
+.pcard:not(.open)>:not(.pc-title){display:none}
+.pcard.open{flex-grow:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto auto 1fr;grid-template-areas:"art top" "art title" "art line" "art chips" "art acts";column-gap:30px;row-gap:14px;padding:12px 30px 12px 12px}
+.pcard.open>:not(.pc-title){animation:fadeUp .5s var(--ease) .2s both}
+.pc-title{grid-area:title;margin:0;font-family:var(--display);font-weight:600;letter-spacing:-.03em;line-height:1.02}
+.pc-toggle{all:unset;cursor:pointer}
+.pc-toggle:focus-visible{outline:2px solid var(--focus);outline-offset:4px;border-radius:6px}
+.pc-toggle span{display:block}
+.pcard:not(.open) .pc-toggle span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:19px;white-space:nowrap;color:var(--fg-2);transition:color .2s}
+.pcard:not(.open):hover .pc-toggle span{color:var(--fg)}
+.pcard:not(.open) .pc-toggle::after{content:"";position:absolute;inset:0} /* the whole narrow card is the button */
+.pcard.open .pc-toggle{cursor:default;font-size:clamp(28px,2.6vw,40px)}
+.pc-art{grid-area:art;border-radius:16px;background:var(--night);border:1px solid var(--border);display:grid;place-items:center;overflow:hidden}
+.pc-art svg{width:min(72%,360px);height:auto;overflow:visible}
+.pc-top{grid-area:top;display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:22px}
+.pc-line{grid-area:line;color:var(--fg-2);font-size:16px;max-width:46ch}
+.chips.pc-chips{grid-area:chips;margin:2px 0 0}
+.pc-chips .chip{background:transparent;font-size:13px}
+.pc-acts{grid-area:acts;display:flex;flex-wrap:wrap;gap:8px;align-content:end;padding-bottom:18px}
+.pc-btn{display:inline-flex;align-items:center;padding:10px 17px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:14px;font-weight:500;color:var(--fg);cursor:pointer;transition:background .25s,color .25s,border-color .25s}
+.pc-btn:hover{border-color:var(--fg)}
+.pc-btn.primary{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.pc-btn.primary:hover{background:var(--link);border-color:var(--link)}
 .badge{font-size:12px;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--link) 12%,transparent);color:var(--link);font-weight:500;white-space:nowrap}
 .badge.win{background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--win)}
 /* svg art always sits on a night panel */
@@ -249,28 +287,11 @@ section{position:relative}
 .f-on{fill:var(--on-night)}
 .f-mid{fill:#4A4D57}
 
-/* skills tabs */
-.skills-sec{padding:120px 0 120px}
-.skill-stage{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;min-height:380px}
+/* shared bits: kickers and tool chips */
 .kicker{font-family:var(--mono);font-size:13px;color:var(--link);letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px}
-.skill-desc{font-size:19px;color:var(--fg-2);max-width:46ch;margin-top:22px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
 .chip{font-size:13.5px;padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface)}
-.skill-art{background:var(--night);border:1px solid var(--border);border-radius:var(--r);aspect-ratio:4/3;display:grid;place-items:center;overflow:hidden}
-.skill-art svg{width:70%;height:auto;overflow:visible}
-.skill-text>*,.skill-art svg{animation:fadeUp .6s var(--ease) both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:50px}
-.tab{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:6px;padding-top:14px;position:relative;color:var(--fg-2);font-size:15px}
-.tab::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--border)}
-.tab .bar{position:absolute;top:0;left:0;height:2px;width:0;background:var(--fg)}
-.tab[aria-selected="true"]{color:var(--fg)}
-.tab[aria-selected="true"] .bar{animation:fill var(--dur,6s) linear forwards}
-.skill-stage:hover ~ .tabs .tab[aria-selected="true"] .bar,.tabs:hover .tab[aria-selected="true"] .bar,.tabs:focus-within .tab[aria-selected="true"] .bar,.skill-stage:focus-within ~ .tabs .tab[aria-selected="true"] .bar{animation-play-state:paused}
-.tabs.manual .tab[aria-selected="true"] .bar{animation:none;width:100%}
-.tab .n{font-family:var(--mono);font-size:12px}
-.tab:focus-visible{outline:2px solid var(--focus);outline-offset:4px}
-@keyframes fill{to{width:100%}}
 
 /* story timeline */
 .story{padding:120px 0 140px;overflow:clip}
@@ -321,21 +342,6 @@ section{position:relative}
 .edu-card.accent{background:var(--accent);color:var(--paper-3)}
 .edu-card.accent .mono,.edu-card.accent p{color:color-mix(in srgb,var(--paper-3) 75%,transparent)}
 
-/* github */
-.gh{padding:120px 0 120px}
-.gh-sub{color:var(--fg-2);max-width:40ch}
-.repos{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
-.repo{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px;transition:border-color .25s,transform .35s var(--ease)}
-.repo:hover{border-color:var(--link);transform:translateY(-4px)}
-.repo-top{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12px;color:var(--fg-2)}
-.repo h3{font-size:22px}
-.repo p{color:var(--fg-2);font-size:15px}
-.repo .lang{display:flex;align-items:center;gap:7px}
-.repo .lang i{width:9px;height:9px;border-radius:50%;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fg) 25%,transparent)}
-.repo-links{display:flex;gap:16px;margin-top:auto;padding-top:6px;font-size:14px}
-.repo-links a{color:var(--link)}
-.repo-links a:hover{text-decoration:underline}
-
 /* contact */
 .contact{padding:120px 0 30px}
 .huge{font-size:clamp(56px,10vw,160px);letter-spacing:-.055em;line-height:.92;margin:30px 0 60px;font-weight:700}
@@ -379,15 +385,22 @@ dialog[open]{animation:pop .45s var(--ease)}
   .hero-grid{grid-template-columns:1fr;padding-top:100px}
   .hero-copy{padding-bottom:10px}
   .me{width:min(420px,88%)}
-  .work{grid-template-columns:1fr 1fr}
-  .card.wide .art{min-height:220px}
-  .card.wide .card-body{padding:22px 26px 22px 12px}
-  .skill-stage,.story-grid,.contact-row,.m-top,.m-body{grid-template-columns:1fr}
+  .room-head{grid-template-columns:1fr}
+  .deck{height:640px}
+  .pcard.open{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto auto 1fr;grid-template-areas:"art" "top" "title" "line" "chips" "acts";row-gap:12px;padding:10px 10px 0}
+  .pcard.open>:not(.pc-art){padding-inline:12px}
+  .pc-art{aspect-ratio:21/9}
+  .pc-top{padding-top:6px}
+  .door-leaf{padding:16px 14px 18px 30px}
+  .door-leaf::before{left:10px;width:6px}
+  .door-leaf::after{inset:8px 8px 8px 22px}
+  .door-pull{right:11px;height:40px;margin-top:-20px}
+  .story-grid,.contact-row,.m-top,.m-body{grid-template-columns:1fr}
   .stats{grid-template-columns:1fr 1fr}
   .stat:nth-child(3){padding-left:0;border-left:0}
   .stat:nth-child(n+3){border-top:1px solid var(--border)}
-  .awards,.repos{grid-template-columns:1fr 1fr}
-  .award:last-child:nth-child(odd),.repo:last-child:nth-child(odd){grid-column:1/-1}
+  .awards{grid-template-columns:1fr 1fr}
+  .award:last-child:nth-child(odd){grid-column:1/-1}
   /* timeline: the year strip sticks under the top bar for the whole list */
   .story-grid{display:block}
   .story-left,.story-sticky{display:contents}
@@ -398,20 +411,36 @@ dialog[open]{animation:pop .45s var(--ease)}
   .story-progress i{flex:1;width:auto;min-width:48px;max-width:140px}
   .story-list{padding:4vh 0 10vh 28px;gap:10vh}
   .story-list>li::before{left:-34px}
-  .tabs{grid-template-columns:1fr 1fr;row-gap:22px}
 }
 @media (max-width:620px){
   body{font-size:16px}
   .wrap{width:calc(100% - 32px)}
   .clock-chip{display:none}
-  .work,.awards,.repos,.edu{grid-template-columns:1fr}
-  .card.wide{flex-direction:column}
-  .card.wide .art{flex:none;aspect-ratio:16/9;min-height:0}
-  .card.wide .card-body{padding:10px 24px 24px}
+  .awards,.edu{grid-template-columns:1fr}
+  /* doors: a 2×2 grid of shorter doors */
+  .doors{grid-template-columns:1fr 1fr;gap:22px 12px}
+  .door{gap:10px}
+  .door-frame{aspect-ratio:4/4.4}
+  .safelight{font-size:10.5px;padding:5px 11px 5px 8px}
+  .door-leaf{padding:14px 10px 16px 28px}
+  .door-label{padding-right:4px}
+  .door-name{font-size:17px}
+  .door-pull{right:8px;height:32px;margin-top:-16px}
+  .door-count{font-size:11px}
+  .door-no{font-size:10px}
+  .rooms{margin-top:48px}
+  /* cards: a vertical stack; closed ones are single rows */
+  .deck{flex-direction:column;height:auto;gap:10px}
+  .pcard{flex:none;transition:background .25s,border-color .25s}
+  .pcard:not(.open){justify-content:space-between;align-items:center;padding:18px 20px}
+  .pcard:not(.open)::after{content:"+";font-family:var(--mono);font-size:18px;color:var(--fg-2)}
+  .pcard:not(.open) .pc-toggle span{writing-mode:horizontal-tb;transform:none;font-size:20px;white-space:normal}
+  .pc-art{aspect-ratio:16/9}
+  .pc-acts{padding-bottom:16px}
   .hero-strip span:nth-child(2){display:none}
   .me-badge{right:0}
   .sec-head{flex-direction:column;gap:6px;margin-bottom:36px}
-  .about,.work-sec,.skills-sec,.recog,.gh,.contact{padding-top:80px}
+  .about,.doors-sec,.recog,.contact{padding-top:80px}
   .story{padding:80px 0 100px}
   .flip-page{padding:0 20px}
   .story-now{margin-inline:-16px;padding-inline:16px}

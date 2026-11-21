@@ -16,15 +16,16 @@ A single-page personal portfolio for Tanishka Jain (data scientist, AI engineer,
 ## Design system
 
 - Concept: "Darkroom". The one photo starts black and white and develops into colour under the cursor (tap on touch screens).
-- One continuous space: each section has `data-theme="dark|light|accent"` and `main.js` sets the same attribute on `<html>` when that section crosses the middle of the screen. Dark: hero, tools strip, What I do, GitHub. Light: about, work, story, recognition. Accent (deep blue): contact only.
+- One continuous space: each section has `data-theme="dark|light|accent"` and `main.js` sets the same attribute on `<html>` when that section crosses the middle of the screen. Dark: hero, tools strip, Behind the doors (#work). Light: about, story, recognition. Accent (deep blue): contact only.
 - Sections have no backgrounds of their own. Components use the theme tokens (`--bg`, `--fg`, `--fg-2`, `--surface`, `--border`, `--link`…), which take their values from the raw palette under each `html[data-theme]` and fade over 0.8s.
 - The particle sphere is one fixed canvas behind the whole page; its position per section is the `SCENES` table in `main.js`, its colours are the `--dot*` tokens.
 - Tokens are at the top of `css/style.css`. Fonts: Bricolage Grotesque (display), Geist (body), Geist Mono (labels).
-- Accent: `--accent` (blue, on paper) and `--glow` (periwinkle, on dark). Gold `--gold` is only for awards.
+- Accent: `--accent` (blue, on paper) and `--glow` (periwinkle, on dark). Gold `--gold` is only for awards. `--safe-red` / `--safe-green` are only for the door safelights.
 
 ## Where things live
 
-- Content data: `js/main.js` arrays `P` (projects), `C` (certifications), `R` (repos), and `S` inside the skills block.
+- Content data: `js/main.js` arrays `P` (projects: `areas` picks the door(s), `live` shows "Visit site" only when it's a real URL, `code` is `[label, url]` pairs, no `overview` means no pop-up), `AREAS` inside the doors block (door name, description, tool chips), and `C` (certifications).
+- Behind the doors (#work): four door buttons, each opening one room of expanding project cards. Built from `AREAS` + `P` in main.js.
 - Timeline: `#storyList` in `index.html`.
 - Each interaction is a self-contained IIFE block in `main.js` with a comment header.
 

@@ -1,7 +1,7 @@
 /* Tanishka Jain portfolio: all interactions, no framework.
    Sections: smooth scroll, clock, cursor, menu, particle field, scroll themes, flip calendar, darkroom portrait,
-   magnetic buttons, statement reveal, counters, projects + modal, skills tabs, story timeline,
-   certifications, GitHub repos, copy email. */
+   magnetic buttons, statement reveal, counters, projects + modal, behind the doors, story timeline,
+   certifications, copy email. */
 (() => {
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -93,11 +93,9 @@
       hero:        [.62, 1.02, .62, 1],
       marquee:     [.62, 1.02, .62, 1],
       about:       [.88, .52, .30, .5],
-      work:        [.94, .18, .22, .4],
-      skills:      [.14, .78, .34, .65],
+      work:        [.10, .86, .32, .55],
       story:       [.92, .80, .28, .45],
       recognition: [.06, .24, .24, .4],
-      github:      [.82, .95, .42, .6],
       contact:     [.50, 1.10, .56, .7]
     };
     let W = 0, H = 0, mx = -9999, my = -9999, rot = 0, raf = 0;
@@ -267,123 +265,162 @@
     code: `<svg viewBox="0 0 300 180"><rect x="20" y="20" width="260" height="140" rx="14" class="f-dim"/><g class="f-mid"><circle cx="40" cy="38" r="5"/><circle cx="56" cy="38" r="5"/><circle cx="72" cy="38" r="5"/></g><rect x="40" y="64" width="80" height="9" rx="4.5" class="f-glow"/><rect x="128" y="64" width="60" height="9" rx="4.5" class="f-mid"/><rect x="60" y="86" width="120" height="9" rx="4.5" class="f-mid"/><rect x="60" y="108" width="90" height="9" rx="4.5" class="f-on" opacity=".7"/><rect x="40" y="130" width="40" height="9" rx="4.5" class="f-glow"/><rect x="200" y="96" width="60" height="44" rx="10" class="f-glow" opacity=".2"/></svg>`
   };
 
-  /* ---------- projects (only what's on the CV) ---------- */
+  /* ---------- projects (only what's on the CV and GitHub) ----------
+     areas: which door(s) the project sits behind. live: the public site ("" = none yet, no button shown).
+     code: [label, url] pairs. Projects without an overview have no "Read the story" pop-up. */
   const P = [
-    { id: 'rings', cat: ['ai', 'web', 'data'], art: 'rings', title: '3Rings', kicker: 'AI product · 2026', badge: 'Leading now',
+    { id: 'rings', areas: ['genai', 'fullstack', 'data'], art: 'rings', title: '3Rings', kicker: 'AI product · 2026', badge: 'Leading now',
       line: 'One place for creators to see how their YouTube, Instagram and TikTok are growing, with AI advice based on real numbers.',
       meta: [['Role', 'Project Lead and AI full-stack developer'], ['Company', 'Persist Ventures (US)'], ['Status', 'In active development'], ['Stack', 'Next.js, TypeScript, PostgreSQL, Redis, Gemini, AWS']],
       overview: '3Rings is an AI-driven analytics and growth platform for content creators. It brings data from YouTube, Instagram and TikTok together and uses an LLM to turn performance signals into insights and recommendations.',
-      did: ['Lead end-to-end delivery: architecture, product decisions and timelines, working with design, API-integration, product and management stakeholders', 'Designed the AI pipeline: platform data ingestion, signal extraction, Gemini inference and Redis-cached serving, on a 16-table PostgreSQL schema', 'Audited AI outputs, traced made-up metrics and ungrounded advice to their root cause, and re-scoped features around verified data', 'Deployed on AWS with CI/CD, leading the move to AWS RDS, and secured Google, Meta and TikTok platform approvals'], links: [] },
-    { id: 'chat', cat: ['ai'], art: 'chat', title: 'Emotion-Aware Chatbot', kicker: 'AI research · 2025', badge: '1st prize ×2', win: true,
+      did: ['Lead end-to-end delivery: architecture, product decisions and timelines, working with design, API-integration, product and management stakeholders', 'Designed the AI pipeline: platform data ingestion, signal extraction, Gemini inference and Redis-cached serving, on a 16-table PostgreSQL schema', 'Audited AI outputs, traced made-up metrics and ungrounded advice to their root cause, and re-scoped features around verified data', 'Deployed on AWS with CI/CD, leading the move to AWS RDS, and secured Google, Meta and TikTok platform approvals'],
+      live: 'https://3rings.io', code: [] },
+    { id: 'chat', areas: ['ml', 'genai'], art: 'chat', title: 'Emotion-Aware Chatbot', kicker: 'AI research · 2025', badge: '1st prize ×2', win: true,
       line: 'A supportive chatbot that recognises how someone feels and responds with care, built for people facing cyberbullying.',
       meta: [['Role', 'Developer and researcher'], ['Recognition', '1st prize, IIIM Hackathon 3.0 and IISU-ASSET 2025'], ['Accuracy', '95% emotion classification'], ['Stack', 'Python, Flan-T5, DistilBERT, LSTM, Hugging Face, Flask']],
       overview: 'A generative AI chatbot that first detects the emotion behind a message, then replies in a way that fits. It runs as a web app with real-time, multi-turn conversation.',
-      did: ['Trained emotion classifiers (LSTM, Random Forest, Logistic Regression) reaching 95% accuracy with cross-validation, tuning and feature engineering', 'Built response generation with Flan-T5 and DistilBERT using RAG-style context injection', 'Deployed it as a Flask web app with real-time conversation', 'Won 1st prize at IIIM Hackathon 3.0 and at the IISU-ASSET 2025 poster presentation'], links: [] },
-    { id: 'vital', cat: ['ai', 'web'], art: 'vital', title: 'VitalSync', kicker: 'Healthcare web app · 2026', badge: 'Production',
+      did: ['Trained emotion classifiers (LSTM, Random Forest, Logistic Regression) reaching 95% accuracy with cross-validation, tuning and feature engineering', 'Built response generation with Flan-T5 and DistilBERT using RAG-style context injection', 'Deployed it as a Flask web app with real-time conversation', 'Won 1st prize at IIIM Hackathon 3.0 and at the IISU-ASSET 2025 poster presentation'],
+      live: '', /* TODO: live link coming soon */ code: [] },
+    { id: 'vital', areas: ['genai', 'fullstack'], art: 'vital', title: 'VitalSync', kicker: 'Healthcare web app · 2026', badge: 'Production',
       line: 'A healthcare dashboard where doctors and patients manage appointments, with an AI health assistant built in.',
       meta: [['Role', 'Full-stack developer'], ['Where', 'Prodesk internship'], ['Status', 'Built and deployed'], ['Stack', 'Next.js 14, TypeScript, MongoDB, Gemini API, JWT']],
       overview: 'VitalSync is a production-grade healthcare dashboard with separate experiences for doctors and patients, and a Gemini-powered assistant that answers health questions using the patient\'s context.',
       did: ['Built the AI Health Assistant with RAG-style context injection and careful prompt design', 'Implemented role-based access so doctors and patients each see only what they should', 'Designed the full REST API: JWT sign-in, CRUD routes, appointment scheduling and data validation', 'Deployed on Vercel and Render with CI/CD workflows'],
-      links: [['Frontend code', 'https://github.com/Tanishkaa-py/vitalsync-frontend'], ['Backend code', 'https://github.com/Tanishkaa-py/Vital-sync-backend']] },
-    { id: 'braille', cat: ['ai'], art: 'braille', title: 'Text-to-Braille Converter', kicker: 'Accessibility · AI + hardware', badge: 'Assistive tech',
+      live: 'https://vitalsync-frontend-eight.vercel.app/login', code: [['Frontend code', 'https://github.com/Tanishkaa-py/vitalsync-frontend'], ['Backend code', 'https://github.com/Tanishkaa-py/Vital-sync-backend']] },
+    { id: 'braille', areas: ['ml'], art: 'braille', title: 'Text-to-Braille Converter', kicker: 'Accessibility · AI + hardware', badge: 'Assistive tech',
       line: 'Turns typed English into Braille, on screen and as raised physical dots through an Arduino, for visually impaired readers.',
       meta: [['Role', 'Developer'], ['Type', 'Computer vision and hardware'], ['Stack', 'Python, Flask, CNN, OpenCV, Arduino']],
       overview: 'A web app that converts English text into Braille and drives Arduino servo motors to produce tactile output, with a CNN that recognises Braille characters.',
       did: ['Built a CNN for multi-class Braille character recognition', 'Prepared images with OpenCV preprocessing and data augmentation, validated with cross-validation', 'Connected the app to Arduino servo motors over serial for real-time physical Braille output', 'Packaged the whole app to run on Windows'],
-      links: [['View code', 'https://github.com/Tanishkaa-py/text-to-braille-project']] },
-    { id: 'flow', cat: ['ai'], art: 'flow', title: 'AI Automation Workflows', kicker: 'Agentic automation · 2025', badge: 'Client work',
+      live: '', /* TODO: live link */ code: [['Code', 'https://github.com/Tanishkaa-py/text-to-braille-project']] },
+    { id: 'flow', areas: ['genai'], art: 'flow', title: 'AI Automation Workflows', kicker: 'Agentic automation · 2025', badge: 'Client work',
       line: 'Automated workflows that read, sort and summarise business information on their own, so teams do less manual work.',
       meta: [['Role', 'AI automation intern'], ['Where', 'KodeCrave, for international clients'], ['Stack', 'N8N, LLM nodes, REST APIs, webhooks, ETL']],
       overview: 'Multi-step agentic workflows built in N8N that use LLMs to classify, summarise and route information between business tools.',
-      did: ['Designed N8N workflows combining LLM nodes, REST APIs and ETL pipelines', 'Built AI-driven classification, summarisation and process intelligence steps', 'Added error handling, data validation and JSON transformations so pipelines run reliably', 'Tracked pipeline performance with MLOps-style monitoring'], links: [] },
-    { id: 'bi', cat: ['data'], art: 'bi', title: 'Executive Reporting Dashboards', kicker: 'Data analytics · 2024', badge: '30% faster',
+      did: ['Designed N8N workflows combining LLM nodes, REST APIs and ETL pipelines', 'Built AI-driven classification, summarisation and process intelligence steps', 'Added error handling, data validation and JSON transformations so pipelines run reliably', 'Tracked pipeline performance with MLOps-style monitoring'],
+      live: '', code: [] },
+    { id: 'bi', areas: ['data'], art: 'bi', title: 'Executive Reporting Dashboards', kicker: 'Data analytics · 2024', badge: '30% faster',
       line: 'Power BI dashboards and automated reports that helped senior leaders make faster, data-backed decisions.',
       meta: [['Role', 'Data analyst intern'], ['Where', 'Celebal Technologies'], ['Stack', 'SQL, Python, Power Query, Power BI']],
       overview: 'Analysis and reporting work on large datasets, turned into executive dashboards and automated reporting pipelines.',
-      did: ['Queried large datasets with complex SQL joins and aggregations for statistical analysis, A/B testing and predictive analytics', 'Automated reporting workflows with Python and Power Query, making reporting 30% faster', 'Built executive Power BI dashboards focused on clear data storytelling'], links: [] }
+      did: ['Queried large datasets with complex SQL joins and aggregations for statistical analysis, A/B testing and predictive analytics', 'Automated reporting workflows with Python and Power Query, making reporting 30% faster', 'Built executive Power BI dashboards focused on clear data storytelling'],
+      live: '', code: [] },
+    // smaller GitHub projects: one line each, so no pop-up
+    { id: 'cine', areas: ['fullstack'], art: 'code', title: 'CineStream', kicker: 'Public repo',
+      line: 'Netflix-style movie discovery with infinite scroll, favourites and AI mood-based recommendations.',
+      meta: [['Stack', 'React']],
+      live: 'https://cine-stream-6nno.vercel.app/', code: [['Code', 'https://github.com/Tanishkaa-py/Cine-Stream']] },
+    { id: 'chatroom', areas: ['fullstack'], art: 'code', title: 'Live Chat Room', kicker: 'Public repo',
+      line: 'Messages appear instantly across every open browser, built to learn real-time communication.',
+      meta: [['Stack', 'Socket.io, React']],
+      live: 'https://live-chat-room-psi.vercel.app/', code: [['Code', 'https://github.com/Tanishkaa-py/live-chat-room']] }
   ];
-  const grid = $('#workGrid');
-  grid.innerHTML = P.map(p => `
-    <article class="card" data-id="${p.id}" data-cat="${p.cat.join(' ')}" data-hover>
-      <div class="art" aria-hidden="true">${ART[p.art]}</div>
-      <div class="card-body">
-        <div class="card-top"><span class="mono">${p.kicker}</span><span class="badge${p.win ? ' win' : ''}">${p.badge}</span></div>
-        <h3><button class="card-open" type="button" aria-haspopup="dialog">${p.title}</button></h3><p>${p.line}</p>
-        <span class="more" aria-hidden="true">Read the story <i>→</i></span>
-      </div>
-    </article>`).join('');
-
-  // Layout: desktop is a 6-column grid. Pick spans so no row is left half empty:
-  // a final row of three, rows of two above it, and one wide card first if the count needs it.
+  const isUrl = u => /^https?:\/\//.test(u || '');
+  const stackOf = p => ((p.meta.find(m => m[0] === 'Stack') || [])[1] || '').split(', ').filter(Boolean);
+  const pad = n => String(n).padStart(2, '0');
   const mqTab = matchMedia('(max-width:1000px)'), mqPhone = matchMedia('(max-width:620px)');
-  const layoutCards = () => {
-    const vis = $$('.card', grid).filter(c => !c.hidden), n = vis.length;
-    let spans, wideSpan = 6;
-    if (mqPhone.matches) { spans = vis.map(() => 1); wideSpan = 0; }
-    else if (mqTab.matches) { spans = vis.map((_, i) => n % 2 && i === 0 ? 2 : 1); wideSpan = 2; }
-    else if (n < 3) spans = n === 1 ? [6] : [3, 3];
-    else { const rest = n - 3; spans = [...(rest % 2 ? [6] : []), ...Array(rest - rest % 2).fill(3), 2, 2, 2]; }
-    vis.forEach((c, i) => { c.style.gridColumn = `span ${spans[i]}`; c.classList.toggle('wide', spans[i] === wideSpan); });
-  };
-  layoutCards();
-  [mqTab, mqPhone].forEach(m => m.addEventListener('change', layoutCards));
 
-  $$('.filter').forEach(b => b.addEventListener('click', () => {
-    $$('.filter').forEach(x => x.setAttribute('aria-pressed', x === b));
-    const f = b.dataset.f;
-    $$('.card', grid).forEach(c => { c.hidden = f !== 'all' && !c.dataset.cat.split(' ').includes(f); });
-    layoutCards();
-  }));
-
-  if (fine && !reduce) $$('.card', grid).forEach(c => {
-    c.addEventListener('pointermove', e => { const r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5; c.style.transform = `perspective(900px) rotateY(${px * 6}deg) rotateX(${-py * 6}deg) translateY(-4px)`; });
-    c.addEventListener('pointerleave', () => { c.style.transform = ''; });
-  });
-
+  /* ---------- project pop-up ---------- */
   const modal = $('#modal');
   const openP = id => {
-    const p = P.find(x => x.id === id); if (!p) return;
+    const p = P.find(x => x.id === id); if (!p || !p.overview) return;
+    const links = [...(isUrl(p.live) ? [['Visit site', p.live]] : []), ...p.code];
     $('#mKicker').textContent = p.kicker; $('#mTitle').textContent = p.title; $('#mLead').textContent = p.line;
     $('#mMeta').innerHTML = p.meta.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
-    $('#mLinks').innerHTML = p.links.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener" data-hover>${t} ↗</a>`).join('');
+    $('#mLinks').innerHTML = links.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener" data-hover>${t} ↗</a>`).join('');
     $('#mArt').innerHTML = ART[p.art]; $('#mOverview').textContent = p.overview;
     $('#mDid').innerHTML = p.did.map(d => `<li>${d}</li>`).join('');
     modal.showModal ? modal.showModal() : modal.setAttribute('open', '');
     lenis && lenis.stop();
   };
-  grid.addEventListener('click', e => { const c = e.target.closest('.card'); if (c) openP(c.dataset.id); });
   $('#mClose').addEventListener('click', () => modal.close());
   modal.addEventListener('click', e => { if (e.target === modal) modal.close(); });
   modal.addEventListener('close', () => lenis && lenis.start());
 
-  /* ---------- skills tabs ---------- */
+  /* ---------- behind the doors: one door per area; a door swings open onto its room of projects ---------- */
   (() => {
-    const S = [
-      { t: 'Data & Analytics', k: 'Find the story in the numbers', d: 'I query large datasets, test ideas with statistics and A/B tests, and build dashboards that leaders actually use to decide.', c: ['SQL', 'Power BI', 'Advanced Excel', 'Pandas', 'A/B testing', 'Statistics'], a: 'bi' },
-      { t: 'Machine Learning', k: 'Teach computers to spot patterns', d: 'I train and tune models that recognise patterns, from emotions in text to characters in images, and validate them properly.', c: ['Python', 'PyTorch', 'TensorFlow', 'Scikit-learn', 'NLP', 'OpenCV'], a: 'nodes' },
-      { t: 'Generative & Agentic AI', k: 'AI that gives grounded answers', d: 'I build LLM apps and automated agent workflows, and I audit their outputs so the answers stay tied to real data.', c: ['Gemini', 'Claude', 'RAG', 'LangChain', 'N8N', 'Prompt engineering'], a: 'flow' },
-      { t: 'Full Stack Products', k: 'From idea to live product', d: 'I take an idea from database design to a deployed web app, with secure sign-in, APIs and the AI built in.', c: ['Next.js', 'React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS'], a: 'code' }
+    // area copy and tools come from the old "What I do" section
+    const AREAS = [
+      { id: 'data', name: 'Data & Analytics', k: 'Find the story in the numbers', d: 'I query large datasets, test ideas with statistics and A/B tests, and build dashboards that leaders actually use to decide.', c: ['SQL', 'Power BI', 'Advanced Excel', 'Pandas', 'A/B testing', 'Statistics'], art: 'bi' },
+      { id: 'ml', name: 'Machine Learning', k: 'Teach computers to spot patterns', d: 'I train and tune models that recognise patterns, from emotions in text to characters in images, and validate them properly.', c: ['Python', 'PyTorch', 'TensorFlow', 'Scikit-learn', 'NLP', 'OpenCV'], art: 'nodes' },
+      { id: 'genai', name: 'Generative & Agentic AI', k: 'AI that gives grounded answers', d: 'I build LLM apps and automated agent workflows, and I audit their outputs so the answers stay tied to real data.', c: ['Gemini', 'Claude', 'RAG', 'LangChain', 'N8N', 'Prompt engineering'], art: 'flow' },
+      { id: 'fullstack', name: 'Full Stack', k: 'From idea to live product', d: 'I take an idea from database design to a deployed web app, with secure sign-in, APIs and the AI built in.', c: ['Next.js', 'React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS'], art: 'code' }
     ];
-    const tabs = $('#tabs'); let cur = 0;
-    tabs.innerHTML = S.map((s, i) => `<button class="tab" role="tab" id="tab${i}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" aria-controls="skillStage" data-i="${i}" data-hover><span class="bar"></span><span class="n">0${i + 1}</span>${s.t}</button>`).join('');
-    const show = i => {
-      cur = i; const s = S[i];
-      $$('.tab', tabs).forEach((t, j) => { t.setAttribute('aria-selected', j === i); t.tabIndex = j === i ? 0 : -1; });
-      $('#skillStage').setAttribute('aria-labelledby', `tab${i}`);
-      $('#skKicker').textContent = s.k; $('#skTitle').textContent = s.t; $('#skDesc').textContent = s.d;
-      $('#skChips').innerHTML = s.c.map(c => `<span class="chip">${c}</span>`).join('');
-      $('#skArt').innerHTML = ART[s.a];
-      $$('.skill-text > *').forEach(el => { el.style.animation = 'none'; el.offsetHeight; el.style.animation = ''; });
+    const doors = $('#doors'), rooms = $('#rooms');
+    const inArea = a => P.filter(p => p.areas.includes(a.id));
+
+    doors.innerHTML = AREAS.map((a, i) => { const n = inArea(a).length; return `
+      <button class="door" type="button" id="door-${a.id}" aria-expanded="false" aria-controls="room-${a.id}" data-hover>
+        <span class="safelight" aria-hidden="true"><i></i><span class="sl-off">Developing</span><span class="sl-on">Enter</span></span>
+        <span class="door-frame">
+          <span class="door-inside" aria-hidden="true">${ART[a.art]}</span>
+          <span class="door-leaf">
+            <span class="door-no" aria-hidden="true">Room ${pad(i + 1)}</span>
+            <span class="door-label"><span class="door-name">${a.name}</span><span class="door-count">${n} project${n === 1 ? '' : 's'}</span></span>
+            <span class="door-pull" aria-hidden="true"></span>
+          </span>
+        </span>
+      </button>`; }).join('');
+
+    const card = (p, open) => {
+      const btns = [
+        isUrl(p.live) && `<a class="pc-btn" href="${p.live}" target="_blank" rel="noopener" data-hover>Visit site ↗</a>`,
+        p.overview && `<button class="pc-btn" type="button" data-story="${p.id}" aria-haspopup="dialog" data-hover>Read the story</button>`,
+        ...p.code.map(([t, u]) => `<a class="pc-btn" href="${u}" target="_blank" rel="noopener" data-hover>${t} ↗</a>`)
+      ].filter(Boolean);
+      btns[0] = btns[0].replace('class="pc-btn"', 'class="pc-btn primary"');
+      return `
+        <article class="pcard${open ? ' open' : ''}">
+          <h4 class="pc-title"><button class="pc-toggle" type="button" aria-expanded="${open}" data-hover><span>${p.title}</span></button></h4>
+          <div class="pc-art" aria-hidden="true">${ART[p.art]}</div>
+          <div class="pc-top"><span class="mono">${p.kicker}</span>${p.badge ? `<span class="badge${p.win ? ' win' : ''}">${p.badge}</span>` : ''}</div>
+          <p class="pc-line">${p.line}</p>
+          <div class="chips pc-chips">${stackOf(p).map(s => `<span class="chip">${s}</span>`).join('')}</div>
+          <div class="pc-acts">${btns.join('')}</div>
+        </article>`;
     };
-    const manual = () => tabs.classList.add('manual'); // visitor picked a tab: stop auto-advancing
-    tabs.addEventListener('click', e => { const t = e.target.closest('.tab'); if (t) { manual(); show(+t.dataset.i); } });
-    tabs.addEventListener('keydown', e => {
-      const to = { ArrowRight: (cur + 1) % S.length, ArrowLeft: (cur + S.length - 1) % S.length, Home: 0, End: S.length - 1 }[e.key];
-      if (to === undefined) return;
-      e.preventDefault(); manual(); show(to); $(`#tab${cur}`).focus();
-    });
-    if (!reduce) tabs.addEventListener('animationend', e => { if (e.target.classList.contains('bar')) show((cur + 1) % S.length); });
+    rooms.innerHTML = AREAS.map((a, i) => `
+      <div class="room" id="room-${a.id}" role="region" aria-labelledby="room-${a.id}-t" hidden>
+        <div class="room-head">
+          <div><p class="kicker">Room ${pad(i + 1)} · ${a.k}</p><h3 class="room-title" id="room-${a.id}-t">${a.name}</h3></div>
+          <div><p class="room-desc">${a.d}</p><div class="chips">${a.c.map(c => `<span class="chip">${c}</span>`).join('')}</div></div>
+        </div>
+        <div class="deck">${inArea(a).map((p, j) => card(p, j === 0)).join('')}</div>
+      </div>`).join('');
+
+    // one room open at a time; the open door stays ajar so you can see which room you're in
+    const doorEls = $$('.door', doors), roomEls = $$('.room', rooms);
+    let cur = -1;
+    const show = (i, fromClick) => {
+      if (i === cur) return; cur = i;
+      doorEls.forEach((d, j) => d.setAttribute('aria-expanded', j === i));
+      roomEls.forEach((r, j) => { r.hidden = j !== i; });
+      // on short screens the room can start below the fold: bring its top into view
+      if (fromClick) {
+        const r = roomEls[i], top = r.getBoundingClientRect().top;
+        if (top > innerHeight * .8) lenis ? lenis.scrollTo(r, { offset: -90 }) : r.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+      }
+    };
+    doorEls.forEach((d, i) => d.addEventListener('click', () => show(i, true)));
     show(0);
+
+    // expanding cards: one wide at a time; hover (mouse, wide layout) or click opens one
+    const openCard = c => {
+      if (c.classList.contains('open')) return;
+      $$('.pcard', c.parentElement).forEach(x => { const on = x === c; x.classList.toggle('open', on); $('.pc-toggle', x).setAttribute('aria-expanded', on); });
+    };
+    let hoverT = 0;
+    $$('.pcard', rooms).forEach(c => {
+      c.addEventListener('pointerenter', e => {
+        if (e.pointerType !== 'mouse' || mqPhone.matches || c.classList.contains('open')) return;
+        clearTimeout(hoverT); hoverT = setTimeout(() => openCard(c), 140); // a short pause, so sweeping across doesn't open everything
+      });
+      c.addEventListener('pointerleave', () => clearTimeout(hoverT));
+    });
+    rooms.addEventListener('click', e => {
+      const t = e.target.closest('.pc-toggle'); if (t) { openCard(t.closest('.pcard')); return; }
+      const s = e.target.closest('[data-story]'); if (s) openP(s.dataset.story);
+    });
   })();
 
   /* ---------- story: rolling year as you scroll ---------- */
@@ -432,17 +469,6 @@
   };
   layoutCerts();
   [mqTab, mqPhone].forEach(m => m.addEventListener('change', layoutCerts));
-
-  /* ---------- GitHub repos ---------- */
-  const R = [
-    { n: 'CineStream', d: 'Netflix-style movie discovery with infinite scroll, favourites and AI mood-based recommendations.', l: 'React', c: '#61DAFB', code: 'https://github.com/Tanishkaa-py/Cine-Stream', live: 'https://cine-stream-6nno.vercel.app/' },
-    { n: 'RapidDispatch Helpdesk', d: 'Real-time ticket desk for 50 agents with live locking, so two people never overwrite the same ticket.', l: 'WebSockets', c: '#8E9BFF', code: 'https://github.com/Tanishkaa-py/live-ops-helpdesk' },
-    { n: 'Aura Engine', d: 'Inventory dashboard designed for 50,000+ products, with fast paginated queries and analytics.', l: 'Node.js · MongoDB', c: '#3DD68C', code: 'https://github.com/Tanishkaa-py/AuraEngine' },
-    { n: 'Live Chat Room', d: 'Messages appear instantly across every open browser, built to learn real-time communication.', l: 'Socket.io · React', c: '#EDEBE6', code: 'https://github.com/Tanishkaa-py/live-chat-room', live: 'https://live-chat-room-psi.vercel.app/' },
-    { n: 'AI Cover Letter Generator', d: 'Upload a resume and get a personalised cover letter written with the Gemini API.', l: 'Node.js · Gemini', c: '#C99A2E', code: 'https://github.com/Tanishkaa-py/AI-Cover-Letter-Generator' },
-    { n: 'Kanban Task Board', d: 'Drag-and-drop task board with priorities, editing, search and saved progress.', l: 'React · dnd-kit', c: '#61DAFB', code: 'https://github.com/Tanishkaa-py/kanban-task-board' }
-  ];
-  $('#repos').innerHTML = R.map(r => `<article class="repo"><div class="repo-top"><span class="lang"><i style="background:${r.c}"></i>${r.l}</span><span>Public</span></div><h3>${r.n}</h3><p>${r.d}</p><div class="repo-links"><a href="${r.code}" target="_blank" rel="noopener" data-hover>Code ↗</a>${r.live ? `<a href="${r.live}" target="_blank" rel="noopener" data-hover>Live demo ↗</a>` : ''}</div></article>`).join('');
 
   /* ---------- copy email ---------- */
   $('#copyEmail').addEventListener('click', async () => {
