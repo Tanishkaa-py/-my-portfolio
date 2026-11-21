@@ -331,6 +331,9 @@ section{position:relative}
 .cert:hover{border-color:var(--fg);transform:translateY(-4px)}
 .cert .issuer{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--fg-2)}
 .cert .logo-dot{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:13px;color:#fff}
+.cert-verify{margin-top:auto;font-size:13px;font-weight:500;color:var(--link)}
+.cert-verify:hover{text-decoration:underline}
+.cert.featured .cert-verify{color:inherit}
 .cert h4{margin:0;font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.01em;line-height:1.2}
 /* featured certificates are inverted: dark on paper, light on night */
 .cert.featured{background:var(--fg);color:var(--bg)}

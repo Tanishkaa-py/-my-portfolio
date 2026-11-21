@@ -447,18 +447,18 @@
     setActive(0); addEventListener('scroll', update, { passive: true }); update();
   })();
 
-  /* ---------- certifications ---------- */
+  /* ---------- certifications (verify: optional credential URL; the link only shows when it's set) ---------- */
   const C = [
-    { n: 'Google Data Analytics', i: 'Google', m: 'G', bg: '#4285F4', f: true },
-    { n: 'TensorFlow Developer Certificate', i: 'TensorFlow', m: 'TF', bg: '#FF6F00', f: true },
-    { n: 'AWS Certified Machine Learning', i: 'Amazon Web Services', m: 'aws', bg: '#232F3E', f: true },
-    { n: 'Claude AI Workshop: Task Automation & Building with Claude', i: 'Anthropic · 2025', m: 'A', bg: '#C96442' },
-    { n: 'Power BI for Data Analysts', i: 'LinkedIn Learning · 2024', m: 'in', bg: '#0A66C2' },
-    { n: 'Intermediate SQL for Data Scientists', i: 'LinkedIn Learning · 2024', m: 'in', bg: '#0A66C2' },
-    { n: 'Mastering Data with Machine Learning', i: 'IBM SkillsBuild · 2024', m: 'IBM', bg: '#0F62FE' }
+    { n: 'Google Data Analytics', i: 'Google', m: 'G', bg: '#4285F4', f: true, verify: '' }, // TODO: verification URL (Credly, Coursera, AWS…)
+    { n: 'TensorFlow Developer Certificate', i: 'TensorFlow', m: 'TF', bg: '#FF6F00', f: true, verify: '' }, // TODO: verification URL (Credly, Coursera, AWS…)
+    { n: 'AWS Certified Machine Learning', i: 'Amazon Web Services', m: 'aws', bg: '#232F3E', f: true, verify: '' }, // TODO: verification URL (Credly, Coursera, AWS…)
+    { n: 'Claude AI Workshop: Task Automation & Building with Claude', i: 'Anthropic · 2025', m: 'A', bg: '#C96442', verify: '' }, // TODO: verification URL (Credly, Coursera, AWS…)
+    { n: 'Power BI for Data Analysts', i: 'LinkedIn Learning · 2024', m: 'in', bg: '#0A66C2', verify: '' }, // TODO: verification URL (Credly, Coursera, AWS…)
+    { n: 'Intermediate SQL for Data Scientists', i: 'LinkedIn Learning · 2024', m: 'in', bg: '#0A66C2', verify: '' }, // TODO: verification URL (Credly, Coursera, AWS…)
+    { n: 'Mastering Data with Machine Learning', i: 'IBM SkillsBuild · 2024', m: 'IBM', bg: '#0F62FE', verify: '' } // TODO: verification URL (Credly, Coursera, AWS…)
   ];
   const certList = [...C.filter(c => c.f), ...C.filter(c => !c.f)];
-  $('#certs').innerHTML = certList.map(c => `<article class="cert${c.f ? ' featured' : ''}" data-hover><div class="issuer"><span class="logo-dot" style="background:${c.bg}">${c.m}</span>${c.i}</div><h4>${c.n}</h4></article>`).join('');
+  $('#certs').innerHTML = certList.map(c => `<article class="cert${c.f ? ' featured' : ''}" data-hover><div class="issuer"><span class="logo-dot" style="background:${c.bg}">${c.m}</span>${c.i}</div><h4>${c.n}</h4>${c.verify ? `<a class="cert-verify" href="${c.verify}" target="_blank" rel="noopener" data-hover>Verify ↗</a>` : ''}</article>`).join('');
   // split n cards into the fewest rows of at most `max`, as evenly as possible; each card spans 12 / row length
   const rowSpans = (n, max) => { const out = []; let left = n; for (let r = Math.ceil(n / max); r > 0; r--) { const len = Math.ceil(left / r); out.push(...Array(len).fill(12 / len)); left -= len; } return out; };
   const layoutCerts = () => {
