@@ -11,12 +11,14 @@ A single-page personal portfolio for Tanishka Jain (data scientist, AI engineer,
 - **Never invent content.** Every project, metric, date, award and certification must come from Tanishka's CV, LinkedIn, GitHub, or her direct instruction. If something is missing, ask; don't fill it in.
 - **Plain English first.** Each project card leads with one sentence a non-technical person can follow. Technical detail lives in the pop-up.
 - **No framework or build step** unless Tanishka asks to migrate. Keep it deployable as static files.
-- **Performance and accessibility:** respect `prefers-reduced-motion`, keep keyboard focus visible, keep the hero canvas paused when off-screen, test at 390px wide.
+- **Performance and accessibility:** respect `prefers-reduced-motion`, keep keyboard focus visible, keep the particle canvas paused when the tab is hidden, test at 390px wide.
 
 ## Design system
 
 - Concept: "Darkroom". The one photo starts black and white and develops into colour under the cursor (tap on touch screens).
-- Dark sections: hero, marquee, GitHub, contact. Warm paper sections: about, work, skills, story, recognition.
+- One continuous space: each section has `data-theme="dark|light|accent"` and `main.js` sets the same attribute on `<html>` when that section crosses the middle of the screen. Dark: hero, tools strip, What I do, GitHub. Light: about, work, story, recognition. Accent (deep blue): contact only.
+- Sections have no backgrounds of their own. Components use the theme tokens (`--bg`, `--fg`, `--fg-2`, `--surface`, `--border`, `--link`…), which take their values from the raw palette under each `html[data-theme]` and fade over 0.8s.
+- The particle sphere is one fixed canvas behind the whole page; its position per section is the `SCENES` table in `main.js`, its colours are the `--dot*` tokens.
 - Tokens are at the top of `css/style.css`. Fonts: Bricolage Grotesque (display), Geist (body), Geist Mono (labels).
 - Accent: `--accent` (blue, on paper) and `--glow` (periwinkle, on dark). Gold `--gold` is only for awards.
 

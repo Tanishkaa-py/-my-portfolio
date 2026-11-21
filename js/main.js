@@ -1,5 +1,5 @@
 /* Tanishka Jain portfolio: all interactions, no framework.
-   Sections: smooth scroll, clock, cursor, menu, hero dust, flip calendar, darkroom portrait,
+   Sections: smooth scroll, clock, cursor, menu, particle field, scroll themes, flip calendar, darkroom portrait,
    magnetic buttons, statement reveal, counters, projects + modal, skills tabs, story timeline,
    certifications, GitHub repos, copy email. */
 (() => {
@@ -15,12 +15,20 @@
     const raf = t => { lenis.raf(t); requestAnimationFrame(raf); };
     requestAnimationFrame(raf);
   }
+  // while an in-page link is scrolling, the theme waits and takes the destination's colours at the end
+  let jumping = false, afterJump = () => {};
   const goTo = hash => {
     const el = $(hash);
     if (!el) return;
     const top = hash === '#top';
-    if (lenis) lenis.scrollTo(top ? 0 : el, { offset: top ? 0 : -10 });
-    else top ? scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }) : el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    jumping = true;
+    const done = () => { if (!jumping) return; jumping = false; afterJump(); };
+    setTimeout(done, 1600); // fallback if no scroll end event arrives (e.g. already there)
+    if (lenis) lenis.scrollTo(top ? 0 : el, { offset: top ? 0 : -10, onComplete: done });
+    else {
+      addEventListener('scrollend', done, { once: true });
+      top ? scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }) : el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    }
     // move keyboard focus too, so the next Tab continues from the section, not the link
     if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
     el.focus({ preventScroll: true });
@@ -70,24 +78,54 @@
   menuBtn.addEventListener('click', () => menu.classList.contains('open') ? closeMenu() : openMenu());
   addEventListener('keydown', e => { if (e.key === 'Escape' && menu.classList.contains('open')) { closeMenu(); menuBtn.focus(); } });
 
-  /* ---------- hero dust: a slowly turning sphere of data points ---------- */
-  (() => {
-    const cv = $('#dust'), ctx = cv.getContext('2d'), hero = $('.hero');
-    let W, H, pts = [], mx = -9999, my = -9999, rot = 0, visible = true;
-    const N = innerWidth < 700 ? 1100 : 2600;
+  /* ---------- particle field: a slowly turning sphere of data points behind the whole page ---------- */
+  const field = (() => {
+    const cv = $('#dust'), ctx = cv.getContext('2d'), root = document.documentElement;
+    const pts = [], N = innerWidth < 700 ? 1000 : 2400;
     for (let i = 0; i < N; i++) {
       const u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, s = Math.sqrt(1 - u * u);
-      pts.push({ x: s * Math.cos(th), y: u, z: s * Math.sin(th), j: Math.random() });
+      pts.push({ x: s * Math.cos(th), y: u, z: s * Math.sin(th) });
     }
-    const size = () => { const d = Math.min(devicePixelRatio || 1, 2); W = hero.clientWidth; H = hero.clientHeight; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
-    size(); addEventListener('resize', size);
-    hero.addEventListener('pointermove', e => { const r = hero.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
-    hero.addEventListener('pointerleave', () => { mx = my = -9999; });
-    new IntersectionObserver(([en]) => { visible = en.isIntersecting; }).observe(hero);
+    // Where the sphere sits while each section is in the middle of the screen:
+    // [centre x, centre y] as a share of the screen, radius as a share of its longer side, strength (dot opacity).
+    // Keys are the section's id, or its first class name. Strength stays low behind reading sections.
+    const SCENES = {
+      hero:        [.62, 1.02, .62, 1],
+      marquee:     [.62, 1.02, .62, 1],
+      about:       [.88, .52, .30, .5],
+      work:        [.94, .18, .22, .4],
+      skills:      [.14, .78, .34, .65],
+      story:       [.92, .80, .28, .45],
+      recognition: [.06, .24, .24, .4],
+      github:      [.82, .95, .42, .6],
+      contact:     [.50, 1.10, .56, .7]
+    };
+    let W = 0, H = 0, mx = -9999, my = -9999, rot = 0, raf = 0;
+    const rgb = v => {
+      v = v.trim();
+      if (v[0] === '#') { if (v.length === 4) v = '#' + [...v.slice(1)].map(c => c + c).join(''); return [1, 3, 5].map(i => parseInt(v.slice(i, i + 2), 16)); }
+      const m = v.match(/[\d.]+/g); return m ? m.slice(0, 3).map(Number) : [128, 128, 128];
+    };
+    // colours come from the theme tokens --dot, --dot-near and --dot-alpha in style.css
+    const goal = { s: SCENES.hero, dot: [0, 0, 0], near: [0, 0, 0], a: 1 };
+    const readTheme = () => { const cs = getComputedStyle(root); goal.dot = rgb(cs.getPropertyValue('--dot')); goal.near = rgb(cs.getPropertyValue('--dot-near')); goal.a = parseFloat(cs.getPropertyValue('--dot-alpha')) || 1; };
+    readTheme();
+    const now = { s: [...goal.s], dot: [...goal.dot], near: [...goal.near], a: goal.a };
+    const ease = (a, b, k) => a + (b - a) * k;
+    const size = () => { const d = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+    const step = () => {
+      const kp = reduce ? 1 : .025, kc = reduce ? 1 : .06; // position drifts over ~2s, colour fades over ~0.8s
+      now.s = now.s.map((v, i) => ease(v, goal.s[i], kp));
+      now.dot = now.dot.map((v, i) => ease(v, goal.dot[i], kc));
+      now.near = now.near.map((v, i) => ease(v, goal.near[i], kc));
+      now.a = ease(now.a, goal.a, kc);
+    };
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
-      const R = Math.max(W, H) * .62, cx = W * .62, cy = H * 1.02;
+      const [fx, fy, fr, strength] = now.s;
+      const R = Math.max(W, H) * fr, cx = W * fx, cy = H * fy, k = strength * now.a * (W < 700 ? .8 : 1);
       const c = Math.cos(rot), s = Math.sin(rot), tilt = .32, ct = Math.cos(tilt), st = Math.sin(tilt);
+      const dot = 'rgb(' + now.dot.map(Math.round) + ')', near = 'rgb(' + now.near.map(Math.round) + ')';
       for (const p of pts) {
         let x = p.x * c - p.z * s, z = p.x * s + p.z * c, y = p.y;
         const y2 = y * ct - z * st; z = y * st + z * ct; y = y2;
@@ -96,15 +134,39 @@
         const dx = sx - mx, dy = sy - my, d = Math.hypot(dx, dy);
         if (d < 140) { const f = (1 - d / 140) * 26; sx += dx / d * f; sy += dy / d * f; }
         if (sx < -10 || sx > W + 10 || sy < -10 || sy > H + 10) continue;
-        const near = d < 160 ? 1 - d / 160 : 0;
-        ctx.globalAlpha = .18 + depth * .62 + near * .2;
-        ctx.fillStyle = near > .1 ? '#8E9BFF' : '#EDEBE6';
+        const close = d < 160 ? 1 - d / 160 : 0;
+        ctx.globalAlpha = (.18 + depth * .62 + close * .2) * k;
+        ctx.fillStyle = close > .1 ? near : dot;
         ctx.fillRect(sx, sy, .7 + depth * 1.7, .7 + depth * 1.7);
       }
       ctx.globalAlpha = 1;
     };
-    const loop = () => { if (visible) { rot += .0016; draw(); } requestAnimationFrame(loop); };
-    reduce ? draw() : loop();
+    // reduced motion: one still frame, redrawn only when the theme or screen size changes
+    const still = () => { step(); draw(); };
+    const loop = () => { raf = 0; if (document.hidden) return; rot += .0016; step(); draw(); raf = requestAnimationFrame(loop); };
+    const start = () => { if (!raf && !reduce && !document.hidden) raf = requestAnimationFrame(loop); };
+    size();
+    addEventListener('resize', () => { size(); if (reduce) still(); });
+    if (!reduce) {
+      addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
+      document.addEventListener('pointerout', e => { if (!e.relatedTarget) mx = my = -9999; });
+      document.addEventListener('visibilitychange', start); // the loop stops itself while the tab is hidden
+    }
+    reduce ? still() : start();
+    return { scene(key) { goal.s = SCENES[key] || goal.s; readTheme(); if (reduce) still(); } };
+  })();
+
+  /* ---------- theme: the page takes the colours of the section crossing the middle of the screen ---------- */
+  (() => {
+    const root = document.documentElement;
+    let timer = 0, last = null;
+    const apply = el => { if (root.dataset.theme !== el.dataset.theme) root.dataset.theme = el.dataset.theme; field.scene(el.id || el.classList[0]); };
+    // a section must hold the middle for a moment, and nothing changes during an in-page jump
+    // (Back to top, menu links), so fast scrolling doesn't flash through every theme on the way
+    const settle = el => { last = el; clearTimeout(timer); if (!jumping) timer = setTimeout(() => apply(el), 120); };
+    afterJump = () => last && apply(last);
+    const io = new IntersectionObserver(ens => ens.forEach(en => { if (en.isIntersecting) settle(en.target); }), { rootMargin: '-50% 0px -50% 0px' });
+    $$('main [data-theme]').forEach(el => io.observe(el));
   })();
 
   /* ---------- flip calendar ---------- */
