@@ -15,6 +15,7 @@
     const raf = t => { lenis.raf(t); requestAnimationFrame(raf); };
     requestAnimationFrame(raf);
   }
+  window.siteLenis = lenis; // shared with the guided tour (js/tour.js); null when reduced motion is on
   // while an in-page link is scrolling, the theme waits and takes the destination's colours at the end
   let jumping = false, afterJump = () => {};
   const goTo = hash => {
@@ -268,13 +269,20 @@
   /* ---------- projects (only what's on the CV and GitHub) ----------
      area: the one door the project sits behind. live: the public site ("" = none yet, no button shown).
      code: [label, url] pairs. Projects without an overview have no "Read the story" pop-up.
-     img: a real screenshot in assets/projects/ (shown in a browser frame); without one, the `art` illustration is used. */
+     img: a real screenshot in assets/projects/ (shown in a browser frame); without one, the `art` illustration is used.
+     line: a \n in it becomes a line break on the card (the pop-up shows it as one paragraph).
+     extra: optional { title, items } section in the pop-up; text before the first ':' in an item is bold. */
   const P = [
     { id: 'rings', area: 'genai', art: 'rings',
       img: { src: 'assets/projects/rings.webp', w: 1200, h: 750, url: '3rings.io', alt: '3Rings landing page: the headline "Let 3Rings Chase The Opportunities", a Start Free Trial button and a preview of the creator dashboard' },
       title: '3Rings', kicker: 'AI product · 2026', badge: 'Leading now',
-      line: 'One place for creators to see how their YouTube, Instagram and TikTok are growing, with AI advice based on real numbers.',
-      meta: [['Role', 'Project Lead and AI full-stack developer'], ['Company', 'Persist Ventures (US)'], ['Status', 'In active development'], ['Stack', 'Next.js, TypeScript, PostgreSQL, Redis, Gemini, AWS']],
+      line: "3Rings is the operating system for creator revenue. It connects YouTube, Instagram and TikTok to show what's driving growth and what to post next.\nIt also finds brand deals and collaborators, and automates outreach, so creators earn more with less busywork.",
+      meta: [['Role', 'Project Lead and AI full-stack developer'], ['Company', 'Persist Ventures (US)'], ['Status', 'In active development'], ['Stack', 'Next.js, TypeScript, PostgreSQL, Redis, Gemini, Skyvern, AWS']],
+      extra: { title: "Why it's generative and agentic", items: [
+        'Writes: Gemini generates growth strategies and brand outreach emails from real platform data',
+        'Acts: an AI browser agent (Skyvern) handles outreach steps on its own',
+        "Finds: it mines creators' public content for sponsorship opportunities (in progress)",
+        "Trust: I audited the AI's outputs and rebuilt features so it only uses verified numbers"] },
       overview: '3Rings is an AI-driven analytics and growth platform for content creators. It brings data from YouTube, Instagram and TikTok together and uses an LLM to turn performance signals into insights and recommendations.',
       did: ['Lead end-to-end delivery: architecture, product decisions and timelines, working with design, API-integration, product and management stakeholders', 'Designed the AI pipeline: platform data ingestion, signal extraction, Gemini inference and Redis-cached serving, on a 16-table PostgreSQL schema', 'Audited AI outputs, traced made-up metrics and ungrounded advice to their root cause, and re-scoped features around verified data', 'Deployed on AWS with CI/CD, leading the move to AWS RDS, and secured Google, Meta and TikTok platform approvals'],
       live: 'https://3rings.io', code: [] },
@@ -289,7 +297,7 @@
       meta: [['Role', 'Full-stack developer'], ['Where', 'Prodesk internship'], ['Status', 'Built and deployed'], ['Stack', 'Next.js 14, TypeScript, MongoDB, Gemini API, JWT']],
       overview: 'VitalSync is a production-grade healthcare dashboard with separate experiences for doctors and patients, and a Gemini-powered assistant that answers health questions using the patient\'s context.',
       did: ['Built the AI Health Assistant with RAG-style context injection and careful prompt design', 'Implemented role-based access so doctors and patients each see only what they should', 'Designed the full REST API: JWT sign-in, CRUD routes, appointment scheduling and data validation', 'Deployed on Vercel and Render with CI/CD workflows'],
-      live: 'https://vitalsync-frontend-eight.vercel.app/login', code: [['Frontend code', 'https://github.com/Tanishkaa-py/vitalsync-frontend'], ['Backend code', 'https://github.com/Tanishkaa-py/Vital-sync-backend']] },
+      live: 'https://vitalsync-frontend-eight.vercel.app/', code: [['Frontend code', 'https://github.com/Tanishkaa-py/vitalsync-frontend'], ['Backend code', 'https://github.com/Tanishkaa-py/Vital-sync-backend']] },
     { id: 'braille', area: 'ml', art: 'braille',
       img: { src: 'assets/projects/braille.webp', w: 1200, h: 580, url: 'Text to Braille Converter', alt: 'Text-to-Braille Converter app: the word "hello" typed in and shown as five Braille cells' },
       title: 'Text-to-Braille Converter', kicker: 'Accessibility · AI + hardware', badge: 'Assistive tech',
@@ -340,11 +348,14 @@
   const openP = id => {
     const p = P.find(x => x.id === id); if (!p || !p.overview) return;
     const links = [...(isUrl(p.live) ? [['Visit site', p.live]] : []), ...p.code];
-    $('#mKicker').textContent = p.kicker; $('#mTitle').textContent = p.title; $('#mLead').textContent = p.line;
+    $('#mKicker').textContent = p.kicker; $('#mTitle').textContent = p.title; $('#mLead').textContent = p.line.replace(/\s*\n\s*/g, ' ');
     $('#mMeta').innerHTML = p.meta.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
     $('#mLinks').innerHTML = links.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener" data-hover>${t} ↗</a>`).join('');
     $('#mArt').innerHTML = shot(p); $('#mArt').classList.toggle('has-img', !!p.img); $('#mOverview').textContent = p.overview;
     $('#mDid').innerHTML = p.did.map(d => `<li>${d}</li>`).join('');
+    $('#mExtra').hidden = !p.extra;
+    if (p.extra) { $('#mExtraTitle').textContent = p.extra.title; $('#mExtraList').innerHTML = p.extra.items.map(t => { const i = t.indexOf(':'); return `<li>${i > 0 ? `<b>${t.slice(0, i + 1)}</b>${t.slice(i + 1)}` : t}</li>`; }).join(''); }
+    modal.scrollTop = 0;
     modal.showModal ? modal.showModal() : modal.setAttribute('open', '');
     lenis && lenis.stop();
   };
@@ -354,11 +365,11 @@
 
   /* ---------- knock knock: one door per area; a door swings open onto its room of projects ---------- */
   (() => {
-    // area copy and tools come from the old "What I do" section
+    // area copy and tools come from the old "What I do" section; doors appear in this order (Generative & Agentic AI first)
     const AREAS = [
-      { id: 'data', name: 'Data & Analytics', k: 'Find the story in the numbers', d: 'I query large datasets, test ideas with statistics and A/B tests, and build dashboards that leaders actually use to decide.', c: ['SQL', 'Power BI', 'Advanced Excel', 'Pandas', 'A/B testing', 'Statistics'], art: 'bi' },
-      { id: 'ml', name: 'Machine Learning', k: 'Teach computers to spot patterns', d: 'I train and tune models that recognise patterns, from emotions in text to characters in images, and validate them properly.', c: ['Python', 'PyTorch', 'TensorFlow', 'Scikit-learn', 'NLP', 'OpenCV'], art: 'nodes' },
       { id: 'genai', name: 'Generative & Agentic AI', k: 'AI that gives grounded answers', d: 'I build LLM apps and automated agent workflows, and I audit their outputs so the answers stay tied to real data.', c: ['Gemini', 'Claude', 'RAG', 'LangChain', 'N8N', 'Prompt engineering'], art: 'flow' },
+      { id: 'ml', name: 'Machine Learning', k: 'Teach computers to spot patterns', d: 'I train and tune models that recognise patterns, from emotions in text to characters in images, and validate them properly.', c: ['Python', 'PyTorch', 'TensorFlow', 'Scikit-learn', 'NLP', 'OpenCV'], art: 'nodes' },
+      { id: 'data', name: 'Data & Analytics', k: 'Find the story in the numbers', d: 'I query large datasets, test ideas with statistics and A/B tests, and build dashboards that leaders actually use to decide.', c: ['SQL', 'Power BI', 'Advanced Excel', 'Pandas', 'A/B testing', 'Statistics'], art: 'bi' },
       { id: 'fullstack', name: 'Full Stack', k: 'From idea to live product', d: 'I take an idea from database design to a deployed web app, with secure sign-in, APIs and the AI built in.', c: ['Next.js', 'React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS'], art: 'code' }
     ];
     const doors = $('#doors'), rooms = $('#rooms');
@@ -379,17 +390,17 @@
 
     const card = (p, open) => {
       const btns = [
-        isUrl(p.live) && `<a class="pc-btn" href="${p.live}" target="_blank" rel="noopener" data-hover>Visit site ↗</a>`,
+        isUrl(p.live) && `<a class="pc-btn" href="${p.live}" target="_blank" rel="noopener" data-role="live" data-hover>Visit site ↗</a>`,
         p.overview && `<button class="pc-btn" type="button" data-story="${p.id}" aria-haspopup="dialog" data-hover>Read the story</button>`,
         ...p.code.map(([t, u]) => `<a class="pc-btn" href="${u}" target="_blank" rel="noopener" data-hover>${t} ↗</a>`)
       ].filter(Boolean);
       btns[0] = btns[0].replace('class="pc-btn"', 'class="pc-btn primary"');
       return `
-        <article class="pcard${open ? ' open' : ''}">
+        <article class="pcard${open ? ' open' : ''}" data-id="${p.id}">
           <h4 class="pc-title"><button class="pc-toggle" type="button" aria-expanded="${open}" data-hover><span>${p.title}</span></button></h4>
           <div class="pc-art${p.img ? ' has-img' : ''}">${shot(p)}</div>
           <div class="pc-top"><span class="mono">${p.kicker}</span>${p.badge ? `<span class="badge${p.win ? ' win' : ''}">${p.badge}</span>` : ''}</div>
-          <p class="pc-line">${p.line}</p>
+          <p class="pc-line">${p.line.replace(/\n/g, '<br>')}</p>
           <div class="chips pc-chips">${stackOf(p).map(s => `<span class="chip">${s}</span>`).join('')}</div>
           <div class="pc-acts">${btns.join('')}</div>
         </article>`;
@@ -420,11 +431,18 @@
     doorEls.forEach((d, i) => d.addEventListener('click', () => show(i === cur ? -1 : i, true)));
     // public hook for a guided tour: openDoor('data' | 'ml' | 'genai' | 'fullstack') opens that room (never toggles it shut)
     window.openDoor = area => { const i = AREAS.findIndex(a => a.id === area); if (i < 0) return false; show(i, true); return true; };
+    window.closeDoors = () => show(-1);
 
     // expanding cards: one wide at a time; hover (mouse, wide layout) or click opens one
     const openCard = c => {
       if (c.classList.contains('open')) return;
       $$('.pcard', c.parentElement).forEach(x => { const on = x === c; x.classList.toggle('open', on); $('.pc-toggle', x).setAttribute('aria-expanded', on); });
+    };
+    // public hook for the tour: expandCard('rings') opens that project's room if needed, then widens its card
+    window.expandCard = id => {
+      const p = P.find(x => x.id === id), c = $(`.pcard[data-id="${id}"]`, rooms); if (!p || !c) return false;
+      if (c.closest('.room').hidden) window.openDoor(p.area);
+      openCard(c); return true;
     };
     let hoverT = 0;
     $$('.pcard', rooms).forEach(c => {

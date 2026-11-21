@@ -33,7 +33,7 @@
 <!-- ===== Top bar ===== -->
 <header class="topbar">
   <a class="logo" href="#top" data-hover aria-label="Back to top">TJ<span>.</span></a>
-  <div class="topbar-mid"><span class="live"></span>Open to Data, AI &amp; Full Stack roles</div>
+  <a class="topbar-mid" href="#contact" aria-label="Open to roles, go to contact" data-hover><span class="live" aria-hidden="true"></span><span class="tm-long">Open to Data, AI &amp; Full Stack roles</span><span class="tm-short">Open to roles</span><span class="tm-arrow" aria-hidden="true">→</span></a>
   <div class="topbar-right">
     <span class="clock-chip" aria-label="Local time in Jaipur">Jaipur <b id="clock">--:--</b><i id="today"></i></span>
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu" data-hover><span class="bars" aria-hidden="true"></span><span id="menuLabel">Menu</span></button>
@@ -73,9 +73,9 @@
       </div>
 
       <div class="btns">
-        <a class="btn primary magnetic" href="#work" data-hover>See my work <span class="arr" aria-hidden="true">↓</span></a>
-        <a class="btn ghost magnetic" href="#contact" data-hover>Hire me</a>
-        <a class="btn ghost magnetic" href="assets/Tanishka_Jain_CV.pdf" download data-hover>Download CV <span aria-hidden="true">↓</span></a>
+        <a class="btn primary small magnetic" href="#work" data-hover>See my work <span aria-hidden="true">↓</span></a>
+        <button class="btn ghost small magnetic" id="tourBtn" type="button" aria-expanded="false" aria-controls="tour" data-hover><span class="tour-dot" aria-hidden="true"></span>Take the tour</button>
+        <a class="btn ghost small" href="assets/Tanishka_Jain_CV.pdf" target="_blank" rel="noopener" title="View my CV (PDF)" aria-label="View my CV (PDF)" data-hover>README ↗</a>
       </div>
     </div>
 
@@ -235,7 +235,7 @@
         <button class="clink" id="copyEmail" type="button" data-hover><span>work.tanishkajain@gmail.com</span><span class="k" id="copyLabel">Copy</span></button>
         <a class="clink" href="https://www.linkedin.com/in/tanishkajain16/" target="_blank" rel="noopener" data-hover><span>LinkedIn</span><span class="k">↗</span></a>
         <a class="clink" href="https://github.com/Tanishkaa-py" target="_blank" rel="noopener" data-hover><span>GitHub</span><span class="k">↗</span></a>
-        <a class="clink" href="assets/Tanishka_Jain_CV.pdf" download data-hover><span>Download CV</span><span class="k">PDF ↓</span></a>
+        <a class="btn ghost small cv-btn" href="assets/Tanishka_Jain_CV.pdf" target="_blank" rel="noopener" title="View my CV (PDF)" aria-label="View my CV (PDF)" data-hover>README ↗</a>
       </div>
     </div>
     <footer class="foot mono"><span>© 2026 Tanishka Jain</span><span>Designed &amp; built in Jaipur</span><a href="#top" data-hover>Back to top ↑</a></footer>
@@ -243,7 +243,7 @@
 </section>
 </main>
 
-<dialog id="modal" aria-labelledby="mTitle">
+<dialog id="modal" aria-labelledby="mTitle" data-lenis-prevent>
   <div class="m-inner">
     <button class="m-close" id="mClose" aria-label="Close project details" data-hover>×</button>
     <div class="m-top">
@@ -260,10 +260,12 @@
       <div><h4>Overview</h4><p id="mOverview"></p></div>
       <div><h4>What I did</h4><ul id="mDid"></ul></div>
     </div>
+    <div class="m-extra" id="mExtra" hidden><h4 id="mExtraTitle"></h4><ul id="mExtraList"></ul></div>
   </div>
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="js/main.js"></script>
+<script src="js/tour.js"></script>
 </body>
 </html>

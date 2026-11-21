@@ -1,0 +1,11 @@
+{
+  "name": "tanishka-portfolio",
+  "private": true,
+  "description": "Static portfolio: no build step. This file only holds helper scripts.",
+  "scripts": {
+    "tour:audio": "node scripts/generate-tour-audio.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

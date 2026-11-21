@@ -1,0 +1,84 @@
+{
+  "_readme": "Single source of truth for the guided tour (js/tour.js) and the audio generator (scripts/generate-tour-audio.mjs). Clips play in this order. Audio for each clip is assets/tour/{id}.mp3. target: what the tour scrolls to. ring: what stays bright while the rest of the page gently dims (defaults to target; false = no highlight, used for the hero). wait: pause until the visitor hovers/clicks, or the timeout. playIf: 'interacted' plays only if the previous wait was answered. only: 'highlights' keeps a clip out of the full tour. speech (optional): different text for the voice, if the caption reads badly aloud.",
+  "highlights": ["01h", "04", "05", "08"],
+  "clips": [
+    {
+      "id": "01h",
+      "only": "highlights",
+      "target": ".hero",
+      "ring": false,
+      "caption": "Hey! I'm Tanishka's AI guide. Short on time? Here are the highlights in under a minute."
+    },
+    {
+      "id": "01a",
+      "target": ".hero",
+      "ring": false,
+      "caption": "Hey! I'm Tanishka's AI guide. The real Tanishka is probably debugging something right now, so I'm showing you around."
+    },
+    {
+      "id": "01b",
+      "target": "#me",
+      "ring": false,
+      "wait": { "type": "hover", "selector": "#me", "timeoutMs": 6000, "hint": "Hover over the photo", "hintTouch": "Tap the photo" },
+      "caption": "First, move your cursor over her photo. Go on, I'll wait."
+    },
+    {
+      "id": "01c",
+      "target": "#me",
+      "ring": false,
+      "action": { "develop": "#me" },
+      "caption": "See? Black and white to full colour. That's basically what she does with data."
+    },
+    {
+      "id": "02",
+      "target": "#statement",
+      "caption": "She started in data analytics and picked up one rule: never trust a number you haven't checked. That rule still runs every AI system she builds."
+    },
+    {
+      "id": "03a",
+      "target": "#work .big",
+      "ring": "#doors",
+      "action": { "closeDoors": true },
+      "wait": { "type": "click", "selector": ".door", "timeoutMs": 7000, "pulse": "#doors", "hint": "Pick any door" },
+      "caption": "Now the fun part. Each of these darkroom doors hides one of her skill areas. Pick any door. Go on, they don't bite."
+    },
+    {
+      "id": "03b",
+      "target": ".room:not([hidden])",
+      "playIf": "interacted",
+      "caption": "Good pick. Have a peek inside. I'll show you her two favourites next."
+    },
+    {
+      "id": "04",
+      "target": ".pcard[data-id=\"rings\"]",
+      "action": { "openDoor": "genai", "expandCard": "rings", "highlight": ".pcard[data-id=\"rings\"] [data-role=\"live\"]" },
+      "caption": "Behind the AI door: 3Rings, the product she's leading for a US company. It turns a creator's YouTube, Instagram and TikTok numbers into advice they can actually use. And that Visit site button? It's live. Go explore it after the tour."
+    },
+    {
+      "id": "05",
+      "target": ".pcard[data-id=\"chat\"]",
+      "action": { "openDoor": "ml", "expandCard": "chat" },
+      "caption": "And behind the machine learning door, her favourite: a chatbot that can tell how you're feeling, built for people facing cyberbullying. Ninety-five percent accuracy and two first prizes. Not bad for a chatbot with feelings."
+    },
+    {
+      "id": "06",
+      "target": "#story",
+      "ring": ".story-now",
+      "slowScroll": true,
+      "caption": "Want the origin story? Watch the year roll back, from leading a product in 2026 to a classroom in Jaipur in 2023."
+    },
+    {
+      "id": "07",
+      "target": "#recognition",
+      "ring": ".awards",
+      "caption": "A few trophies, some certifications, and a 9.8 CGPA. Pretty hard to argue with."
+    },
+    {
+      "id": "08",
+      "target": "#contact",
+      "ring": ".contact-links",
+      "end": true,
+      "caption": "That's the tour! If anything caught your eye, her inbox is right here, and she usually replies within a day. Thanks for visiting."
+    }
+  ]
+}

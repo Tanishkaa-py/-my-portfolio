@@ -79,6 +79,9 @@ html{
 /* ---------- base ---------- */
 *{box-sizing:border-box}
 html.lenis,html.lenis body{height:auto}
+/* while the project pop-up is open the page behind stays still (also without Lenis, e.g. reduced motion) */
+html{scrollbar-gutter:stable}
+html:has(dialog[open]){overflow:hidden}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body.menu-open{overflow:hidden}
@@ -120,7 +123,14 @@ body::after{content:"";position:fixed;inset:-50%;pointer-events:none;z-index:90;
 .logo,.topbar-mid,.clock-chip,.menu-btn{background:color-mix(in srgb,var(--surface) 80%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:999px}
 .logo{justify-self:start;font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.04em;padding:8px 14px}
 .logo span{color:var(--link)}
-.topbar-mid{display:flex;align-items:center;gap:10px;font-size:13.5px;padding:8px 16px}
+.topbar-mid{display:flex;align-items:center;gap:10px;font-size:13.5px;padding:8px 16px;transition:border-color .25s,background .25s}
+.topbar-mid .live{transition:background .25s,box-shadow .25s,transform .25s}
+.tm-short{display:none}
+.tm-arrow{display:inline-block;max-width:0;opacity:0;overflow:hidden;margin-left:-10px;transform:translateX(-4px);transition:max-width .3s var(--ease),opacity .25s,margin .3s var(--ease),transform .3s var(--ease)}
+.topbar-mid:hover,.topbar-mid:focus-visible{border-color:color-mix(in srgb,#3DD68C 55%,var(--border));background:color-mix(in srgb,var(--surface) 92%,transparent)}
+.topbar-mid:hover .live,.topbar-mid:focus-visible .live{background:#6BF0AE;box-shadow:0 0 10px 2px rgba(61,214,140,.75);transform:scale(1.15)}
+.topbar-mid:hover .tm-arrow,.topbar-mid:focus-visible .tm-arrow{max-width:1.2em;opacity:1;margin-left:0;transform:none}
+.topbar-mid:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:999px}
 .topbar-right{display:flex;justify-content:flex-end;align-items:center;gap:10px}
 .clock-chip{display:flex;gap:8px;align-items:center;font-size:13px;padding:8px 14px}
 .clock-chip b{font-weight:500;font-variant-numeric:tabular-nums}
@@ -164,13 +174,17 @@ body::after{content:"";position:fixed;inset:-50%;pointer-events:none;z-index:90;
 .flip-page.turn{animation:turn .75s var(--ease) forwards}
 @keyframes turn{to{transform:rotateX(-100deg);opacity:0}}
 
-.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .btn{display:inline-flex;align-items:center;gap:12px;padding:14px 22px;border-radius:999px;font-weight:500;font-size:15.5px;border:1px solid transparent;transition:background .25s,color .25s,border-color .25s;will-change:transform}
 .btn.primary{background:var(--fg);color:var(--bg)}
 .btn.primary:hover{background:var(--link);color:var(--bg)}
-.btn.ghost{border-color:var(--border);color:var(--fg)}
+.btn.ghost{border-color:var(--border);color:var(--fg);background:transparent}
+/* the hero's matching pill row (See my work, Take the tour, README) and the contact README button */
+.btn.small{gap:8px;padding:9px 15px;font-family:var(--mono);font-size:12.5px;line-height:1.4;letter-spacing:.06em;white-space:nowrap}
+.btn.small.primary{border-color:var(--fg)}
+.btn.small.primary:hover{border-color:var(--link)}
+.contact-links .cv-btn{align-self:flex-start;margin-top:4px}
 .btn.ghost:hover{border-color:var(--fg)}
-.btn .arr{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--bg);color:var(--fg);font-size:12px}
 
 /* the darkroom portrait (hint and badge sit on the photo, so they stay dark) */
 .me{position:relative;margin:0;align-self:end;justify-self:center;width:min(520px,100%);aspect-ratio:720/978;--x:50%;--y:40%;--r:0px}
@@ -370,8 +384,85 @@ section{position:relative}
 .clink .k{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-2)}
 .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:120px;padding-top:24px;border-top:1px solid var(--border)}
 
+/* ---------- guided tour (js/tour.js): one floating "now playing" card + a soft spotlight ---------- */
+.tour-dot{width:9px;height:9px;border-radius:50%;background:var(--link);box-shadow:0 0 10px 1px color-mix(in srgb,var(--link) 70%,transparent)}
+.tour{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:95;width:min(620px,calc(100% - 48px));display:flex;justify-content:center;pointer-events:none}
+.tour[hidden],body.menu-open .tour{display:none}
+html.tour-on body{padding-bottom:calc(var(--tour-h,90px) + 40px)} /* the end of the page can always scroll clear of the card */
+.tc{--level:0;pointer-events:auto;position:relative;width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 12px 14px;border-radius:22px;overflow:hidden;color:var(--fg);
+  background:color-mix(in srgb,var(--surface) 70%,transparent);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);
+  border:1px solid color-mix(in srgb,var(--fg) 11%,transparent);box-shadow:0 1px 0 color-mix(in srgb,var(--fg) 6%,transparent) inset,0 24px 60px -26px rgba(0,0,0,.6);
+  animation:tcIn .45s var(--ease);transition:width .45s var(--ease),padding .45s var(--ease),border-radius .45s var(--ease)}
+@keyframes tcIn{from{opacity:0;transform:translateY(16px) scale(.98)}}
+/* left: orb + live waveform, counter underneath */
+.tc-left{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.tc-orbrow{display:flex;align-items:center;gap:8px}
+.tc-orb{all:unset;box-sizing:border-box;cursor:pointer;position:relative;flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center}
+.tc-orb:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.tc-orb-ball{position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,color-mix(in srgb,var(--fg) 75%,var(--link)) 0,var(--link) 48%,color-mix(in srgb,var(--link) 35%,var(--bg)) 100%);
+  box-shadow:0 0 calc(10px + var(--level) * 34px) calc(var(--level) * 8px) color-mix(in srgb,var(--link) 60%,transparent);transform:scale(calc(1 + var(--level) * .14));transition:transform .08s linear}
+.tc-orb-play{position:relative;display:none;width:15px;height:15px;color:var(--bg);margin-left:2px}
+.tc-orb-play svg{width:100%;height:100%}
+.tc-wave{display:flex;align-items:center;gap:2.5px;height:22px}
+.tc-wave i{width:3px;height:100%;border-radius:2px;background:var(--link);opacity:.85;transform:scaleY(.18);transition:transform .09s linear}
+.tc-count{font-size:10.5px;letter-spacing:.08em;padding-left:2px}
+/* middle: the caption (2 lines that follow the voice), wait hint, start choices, end actions */
+.tc-main{min-width:0}
+.tc-cap{height:calc(2 * 1.45em);overflow:hidden;font-size:16px;line-height:1.45}
+.tc-text{margin:0;transition:transform .35s var(--ease);text-wrap:pretty}
+.tc-text .w{color:color-mix(in srgb,var(--fg) 34%,transparent);transition:color .2s}
+.tc-text .w.said{color:var(--fg)}
+.tc-text .w.now{color:var(--link)}
+.tc-hint{display:flex;align-items:center;gap:7px;margin:6px 0 0;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--link)}
+.tc-hint[hidden]{display:none}
+.tc-hint i{width:6px;height:6px;border-radius:50%;background:var(--link);animation:hintPulse 1.2s ease-in-out infinite}
+@keyframes hintPulse{50%{opacity:.25;transform:scale(.7)}}
+.tc-choices{display:none;flex-wrap:wrap;gap:8px}
+.tc-choice{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:1px;padding:9px 15px;border-radius:14px;border:1px solid color-mix(in srgb,var(--fg) 14%,transparent);font-size:14.5px;line-height:1.25;transition:background .2s,border-color .2s}
+.tc-choice b{font-weight:500}
+.tc-choice small{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-2)}
+.tc-choice:hover,.tc-choice:focus-visible{background:color-mix(in srgb,var(--fg) 7%,transparent);border-color:color-mix(in srgb,var(--fg) 30%,transparent)}
+.tc-choice:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.tc-end{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.tc-end[hidden]{display:none}
+.tc-pill{display:inline-flex;align-items:center;padding:7px 14px;border-radius:999px;border:1px solid color-mix(in srgb,var(--fg) 16%,transparent);background:transparent;font-size:13.5px;font-weight:500;color:var(--fg);cursor:pointer}
+.tc-pill:hover{border-color:var(--fg)}
+.tc-pill.primary{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tc-pill.primary:hover{background:var(--link);border-color:var(--link)}
+/* right: icon controls, revealed on hover/focus (always shown on touch screens) */
+.tc-ctl{display:flex;gap:2px;opacity:0;transition:opacity .25s}
+.tc:hover .tc-ctl,.tc:has(:focus-visible) .tc-ctl{opacity:1}
+@media (hover:none),(pointer:coarse){.tc-ctl{opacity:1}}
+.tc-btn{all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--fg-2);transition:color .2s,background .2s}
+.tc-btn:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.tc-btn:focus-visible{outline:2px solid var(--focus);outline-offset:1px;color:var(--fg)}
+.tc-btn[aria-pressed="true"]{color:var(--link)}
+.tc-btn:disabled{opacity:.3;cursor:default}
+.tc-btn svg{width:14px;height:14px}
+/* thin line along the bottom: progress through the whole tour */
+.tc-progress{position:absolute;left:0;right:0;bottom:0;height:2px;background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.tc-progress i{display:block;height:100%;background:var(--link);transform-origin:0 50%;transform:scaleX(0);transition:transform .2s linear}
+/* states */
+.tour[data-state="choosing"] .tc-choices{display:flex}
+.tour[data-state="choosing"] :is(.tc-cap,.tc-count,.tc-progress,.tc-wave),
+.tour[data-state="choosing"] .tc-btn:not([data-act="close"]){display:none}
+.tour[data-state="choosing"] .tc-ctl{opacity:1}
+.tour[data-state="paused"] .tc{width:62px;padding:12px;border-radius:31px;grid-template-columns:auto}
+.tour[data-state="paused"] .tc > :not(.tc-left),.tour[data-state="paused"] :is(.tc-wave,.tc-count){display:none}
+.tour[data-state="paused"] .tc-orb-play{display:block}
+/* spotlight: the page dims a little toward its own background colour; the target stays clear (soft edge, no border) */
+.tour-dim{position:fixed;inset:0;z-index:85;pointer-events:none;background:color-mix(in srgb,var(--bg) 58%,transparent);opacity:0;transition:opacity .6s var(--ease)}
+.tour-dim.on{opacity:1}
+/* the spotlit button (3Rings' Visit site): a soft glow, no outline */
+.tour-spot{box-shadow:0 0 28px 6px color-mix(in srgb,var(--link) 50%,transparent);animation:spotGlow 1.6s ease-in-out infinite}
+@keyframes spotGlow{50%{box-shadow:0 0 12px 2px color-mix(in srgb,var(--link) 28%,transparent)}}
+/* waiting for a door click: every safelight calls out */
+.tour-wait .safelight{animation:lampCall 1.1s ease-in-out infinite}
+@keyframes lampCall{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--lamp) 22%,transparent),0 0 26px 4px color-mix(in srgb,var(--lamp) 45%,transparent)}}
+
 /* modal (always light: dialog takes the light theme tokens above) */
-dialog{border:0;padding:0;width:min(980px,100% - 24px);max-height:min(90vh,100% - 24px);border-radius:var(--r);background:var(--surface);color:var(--fg);box-shadow:0 40px 100px -20px rgba(0,0,0,.5)}
+dialog{border:0;padding:0;width:min(980px,100% - 24px);max-height:min(90vh,100% - 24px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-radius:var(--r);background:var(--surface);color:var(--fg);box-shadow:0 40px 100px -20px rgba(0,0,0,.5)}
 dialog::backdrop{background:color-mix(in srgb,var(--night) 60%,transparent);backdrop-filter:blur(6px)}
 dialog[open]{animation:pop .45s var(--ease)}
 @keyframes pop{from{opacity:0;transform:translateY(24px) scale(.98)}}
@@ -395,11 +486,18 @@ dialog[open]{animation:pop .45s var(--ease)}
 .m-body h4{font-family:var(--mono);font-size:12.5px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--fg-2);margin:0 0 12px}
 .m-body ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:9px;font-size:15.5px}
 .m-body p{font-size:15.5px}
+.m-extra{border-top:1px solid var(--border);padding-top:24px}
+.m-extra[hidden]{display:none}
+.m-extra h4{font-family:var(--mono);font-size:12.5px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--fg-2);margin:0 0 12px}
+.m-extra ul{margin:0;padding-left:18px;display:grid;grid-template-columns:1fr 1fr;gap:9px 36px;font-size:15.5px}
+.m-extra b{font-weight:600}
 
 /* responsive */
 @media (max-width:1000px){
-  .topbar-mid{display:none}
-  .topbar{grid-template-columns:auto 1fr}
+  .topbar{grid-template-columns:auto 1fr auto}
+  .topbar-mid{justify-self:center;padding:8px 14px}
+  .tm-long{display:none}
+  .tm-short{display:inline}
   .hero-grid{grid-template-columns:1fr;padding-top:100px}
   .hero-copy{padding-bottom:10px}
   .me{width:min(420px,88%)}
@@ -414,7 +512,7 @@ dialog[open]{animation:pop .45s var(--ease)}
   .door-leaf::before{left:10px;width:6px}
   .door-leaf::after{inset:8px 8px 8px 22px}
   .door-pull{right:11px;height:40px;margin-top:-20px}
-  .story-grid,.contact-row,.m-top,.m-body{grid-template-columns:1fr}
+  .story-grid,.contact-row,.m-top,.m-body,.m-extra ul{grid-template-columns:1fr}
   .stats{grid-template-columns:1fr 1fr}
   .stat:nth-child(3){padding-left:0;border-left:0}
   .stat:nth-child(n+3){border-top:1px solid var(--border)}
@@ -464,6 +562,19 @@ dialog[open]{animation:pop .45s var(--ease)}
   .story{padding:80px 0 100px}
   .flip-page{padding:0 20px}
   .story-now{margin-inline:-16px;padding-inline:16px}
+  /* tour: a full-width slim bar along the bottom */
+  .tour{left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));width:auto;transform:none}
+  .tc{gap:10px;padding:10px 10px 12px;border-radius:18px}
+  .tc-orb{width:34px;height:34px}
+  .tc-orbrow{gap:6px}
+  .tc-wave{height:18px;gap:2px}
+  .tc-wave i{width:2.5px}
+  .tc-cap{font-size:14.5px}
+  .tc-ctl{display:grid;grid-template-columns:repeat(2,28px);gap:2px}
+  .tc-btn{width:28px;height:28px}
+  .tour[data-state="choosing"] .tc-ctl{display:flex}
+  .tc-choices{flex-direction:column;gap:6px}
+  .tc-choice{padding:8px 12px;font-size:14px}
 }
 /* reduced motion: themes switch instantly (no fades), nothing animates */
 @media (prefers-reduced-motion:reduce){
