@@ -1,6 +1,6 @@
 /* Tanishka Jain portfolio: all interactions, no framework.
    Sections: smooth scroll, clock, cursor, menu, particle field, scroll themes, flip calendar, darkroom portrait,
-   magnetic buttons, statement reveal, counters, projects + modal, behind the doors, story timeline,
+   magnetic buttons, statement reveal, counters, projects + modal, knock knock (doors), story timeline,
    certifications, copy email. */
 (() => {
   const $ = (s, el = document) => el.querySelector(s);
@@ -352,7 +352,7 @@
   modal.addEventListener('click', e => { if (e.target === modal) modal.close(); });
   modal.addEventListener('close', () => lenis && lenis.start());
 
-  /* ---------- behind the doors: one door per area; a door swings open onto its room of projects ---------- */
+  /* ---------- knock knock: one door per area; a door swings open onto its room of projects ---------- */
   (() => {
     // area copy and tools come from the old "What I do" section
     const AREAS = [

@@ -213,10 +213,11 @@ section{position:relative}
 .stat .unit{font-family:var(--display);font-size:22px;color:var(--fg-2);padding-bottom:8px}
 .stat p{grid-column:1/-1;color:var(--fg-2);font-size:14.5px;margin-top:14px;max-width:24ch}
 
-/* behind the doors: darkroom doors with a safelight above each (red = developing, green = enter) */
+/* knock knock: darkroom doors with a safelight above each (red = developing, green = enter) */
 @property --lamp{syntax:"<color>";inherits:true;initial-value:#FF5A4E}
 .doors-sec{padding:120px 0 120px}
-.doors-sec .big{margin-bottom:56px}
+.doors-sec .big{margin-bottom:18px}
+.doors-sub{color:var(--fg-2);font-size:19px;max-width:46ch;margin-bottom:56px}
 .doors{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,2vw,28px)}
 .door{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:14px;border-radius:12px;--lamp:var(--safe-red);transition:--lamp .35s}
 .door:hover,.door:focus-visible{--lamp:var(--safe-green)}
