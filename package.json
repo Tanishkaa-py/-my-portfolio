@@ -1,11 +1,16 @@
 {
   "name": "tanishka-portfolio",
   "private": true,
-  "description": "Static portfolio: no build step. This file only holds helper scripts.",
+  "description": "Static portfolio (no build step) plus one serverless function for the AI assistant (api/chat.js).",
   "scripts": {
     "tour:audio": "node scripts/generate-tour-audio.mjs"
   },
   "engines": {
-    "node": ">=18"
-  }
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "4.0.124",
+    "ai": "7.0.179"
+  },
+  "type": "module"
 }

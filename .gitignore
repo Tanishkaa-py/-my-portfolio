@@ -9,3 +9,7 @@
 # CV source files: only the PDF is public
 assets/*.pages
 assets/*.docx
+.env*
+
+# dependencies (installed by Vercel on deploy)
+node_modules/

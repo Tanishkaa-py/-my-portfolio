@@ -17,10 +17,9 @@
   const readTime = text => Math.max(5000, text.trim().split(/\s+/).length * 250); // at least 5s, ~¼s per word
   const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
 
-  /* ===== FUTURE: AI assistant hook =====
-     openAssistant() is where the "Ask about me" agent (CLAUDE.md, ideas for later #3) will open from,
-     for example from a button on the tour's last clip. Deliberately does nothing yet. */
-  window.openAssistant = () => false;
+  /* AI assistant hook: js/assistant.js replaces this with the real "Ask Tanishka's AI" panel opener.
+     The fallback only matters if that script fails to load. */
+  if (!window.openAssistant) window.openAssistant = () => false;
 
   /* ---------- data ---------- */
   let DATA = null;
@@ -58,6 +57,7 @@
         <div class="tc-end" hidden>
           <a class="tc-pill primary" href="mailto:work.tanishkajain@gmail.com" data-hover>Get in touch</a>
           <button class="tc-pill" type="button" data-act="replay" data-hover>Replay tour</button>
+          <button class="tc-pill" type="button" data-act="ask" data-hover>Or ask my AI anything</button>
         </div>
       </div>
       <div class="tc-ctl">
@@ -316,6 +316,7 @@
     if (act === 'mute') return toggleMute();
     if (act === 'close') return finish(true);
     if (act === 'replay') { unlockAudio(); return start(mode); }
+    if (act === 'ask') { finish(false); return window.openAssistant(); }
   });
 
   /* ---------- opening the card from the hero button ---------- */

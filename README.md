@@ -2,7 +2,7 @@
 
 Personal portfolio of Tanishka Jain: data scientist, AI engineer and full-stack developer from Jaipur, India.
 
-Plain HTML, CSS and JavaScript. No build step and no framework. Smooth scrolling comes from [Lenis](https://github.com/darkroomengineering/lenis) loaded from a CDN.
+Plain HTML, CSS and JavaScript. No build step and no framework. Smooth scrolling comes from [Lenis](https://github.com/darkroomengineering/lenis) loaded from a CDN. One Vercel serverless function (`api/chat.js`) powers the "Ask Tanishka's AI" assistant.
 
 ## Run locally
 
@@ -33,6 +33,10 @@ js/main.js               every interaction, one block per feature, plus the
 js/tour.js               the optional voice-guided tour
 data/tour-lines.json     the tour's clips: captions, targets, waits, actions
 scripts/                 generate-tour-audio.mjs (ElevenLabs voice for the tour)
+js/assistant.js          the "Ask Tanishka's AI" chat panel
+api/chat.js              serverless function: Gemini + tools, streamed answers
+api/_lib/                profile retrieval, tools, rules, rate limit
+data/profile.md          the assistant's knowledge, built only from this site
 assets/                  tanishka.webp (the only photo), og.jpg (link preview),
                          projects/ (screenshots), tour/ (tour audio), the CV PDF
 ```
@@ -73,3 +77,27 @@ assets/                  tanishka.webp (the only photo), og.jpg (link preview),
    ```
 
    The script never prints your key. Re-run it for a clip whenever you change its caption (or `speech`).
+
+## "Ask Tanishka's AI" (recruiter assistant)
+
+A chat panel (bottom-left "Ask my AI" button, the menu, or the end of the tour) that answers questions about Tanishka **only from `data/profile.md`**, which is built from this site's content. It streams answers, shows each step under "How I answered", can check a pasted job description (strong / partial / gap with evidence), open a project's door and card, and take a message for Tanishka.
+
+- **Backend:** `api/chat.js` (Vercel serverless function, Node 22+) using the Vercel AI SDK (`ai`) and Google Gemini (`@ai-sdk/google`). The API key stays on the server.
+- **Knowledge:** `data/profile.md`, one `## ` section per topic. **Update it whenever the site's content changes**, or the assistant will give outdated answers.
+- **Tools:** `searchProfile`, `analyzeJobFit`, `openProject`, `leaveMessage` (messages are written to the Vercel function logs for now; an N8N hook point is marked in `api/_lib/tools.js`).
+- **Safeguards:** 20 messages per visitor per hour (in-memory, best-effort, plus a matching browser limit; see `api/_lib/ratelimit.js` for switching to Upstash), capped answer and message length, a 15-second timeout, friendly errors.
+- **Model:** `gemini-3.5-flash-lite` by default (fast enough for the 15-second timeout); set `GEMINI_MODEL` to change it. Avoid `gemini-2.5-flash`: it's no longer available to new API keys.
+
+### Run it locally
+
+```bash
+npm install                 # once
+# add your key to .env (git-ignored):  GEMINI_API_KEY=your-key
+vercel dev                  # don't add a "dev" script that calls vercel dev: it would call itself
+```
+
+Open the URL it prints (usually http://localhost:3000). A plain static server can't run `/api/chat`, so the panel will say the assistant isn't available there.
+
+### Make it work on the live site
+
+Vercel → your project → **Settings → Environment Variables** → add `GEMINI_API_KEY` (optionally `GEMINI_MODEL`) for Production (and Preview if you like) → **redeploy**. Set a spending cap or budget alert on your Google AI billing.
