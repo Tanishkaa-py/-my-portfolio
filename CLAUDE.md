@@ -32,7 +32,7 @@ A single-page personal portfolio for Tanishka Jain (data scientist, AI engineer,
 
 ## Ideas for later (only if Tanishka asks)
 
-1. Download CV button (add `assets/Tanishka_Jain_CV.pdf` and link it in the hero and contact sections).
+1. Download CV: done (hero and contact link `assets/Tanishka_Jain_CV.pdf`, exported from the Pages file, which stays out of git). Re-export the PDF whenever the CV changes.
 2. Credential links: the `verify` field and link are built; only the URLs are missing.
 3. "Ask about me" AI assistant (text, optionally voice) grounded only in her CV, using a serverless function (Vercel/Cloudflare) with Gemini or Claude. Needs rate limiting and a spend cap, and the API key must stay server-side.
 4. Analytics with a consent banner (Plausible or Vercel Analytics).

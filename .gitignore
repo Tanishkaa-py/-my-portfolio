@@ -1,2 +1,11 @@
 .DS_Store
 .vercel
+
+# secrets (ElevenLabs keys for the tour audio generator)
+.env
+.env.local
+.env*.local
+
+# CV source files: only the PDF is public
+assets/*.pages
+assets/*.docx
