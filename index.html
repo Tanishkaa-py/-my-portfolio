@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tanishka Jain Portfolio</title>
+<meta name="description" content="Tanishka Jain: data scientist, AI engineer and full-stack developer from Jaipur, India. Projects, experience, awards and contact.">
+<meta name="theme-color" content="#0D0E10">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Tanishka Jain: Data Scientist, AI Engineer & Full Stack Developer">
+<meta property="og:description" content="I turn data into decisions and AI into products people can actually use.">
+<meta property="og:image" content="assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Person","name":"Tanishka Jain","jobTitle":"AI Full Stack Developer & Project Lead","worksFor":{"@type":"Organization","name":"Persist Ventures"},"address":{"@type":"PostalAddress","addressLocality":"Jaipur","addressCountry":"IN"},"email":"mailto:work.tanishkajain@gmail.com","sameAs":["https://www.linkedin.com/in/tanishkajain16/","https://github.com/Tanishkaa-py"]}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="cursor" aria-hidden="true"><span class="c-dot"></span><span class="c-ring"></span></div>
+
+<!-- ===== Top bar ===== -->
+<header class="topbar">
+  <a class="logo" href="#top" data-hover aria-label="Back to top">TJ<span>.</span></a>
+  <div class="topbar-mid"><span class="live"></span>Open to Data, AI &amp; Full Stack roles</div>
+  <div class="topbar-right">
+    <span class="clock-chip" aria-label="Local time in Jaipur">Jaipur <b id="clock">--:--</b><i id="today"></i></span>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menu" data-hover><span class="bars" aria-hidden="true"></span>Menu</button>
+  </div>
+</header>
+
+<nav class="menu" id="menu" aria-label="Site" hidden>
+  <ol>
+    <li><a href="#work" data-hover><span>01</span>Work</a></li>
+    <li><a href="#about" data-hover><span>02</span>About</a></li>
+    <li><a href="#skills" data-hover><span>03</span>What I do</a></li>
+    <li><a href="#story" data-hover><span>04</span>My story</a></li>
+    <li><a href="#recognition" data-hover><span>05</span>Awards &amp; certifications</a></li>
+    <li><a href="#github" data-hover><span>06</span>GitHub</a></li>
+    <li><a href="#contact" data-hover><span>07</span>Contact</a></li>
+  </ol>
+  <div class="menu-foot">
+    <a href="https://www.linkedin.com/in/tanishkajain16/" target="_blank" rel="noopener" data-hover>LinkedIn ↗</a>
+    <a href="https://github.com/Tanishkaa-py" target="_blank" rel="noopener" data-hover>GitHub ↗</a>
+    <span>work.tanishkajain@gmail.com</span>
+  </div>
+</nav>
+
+<main id="top">
+
+<!-- ===== Hero (dark) ===== -->
+<section class="hero dark" aria-label="Introduction">
+  <canvas id="dust" aria-hidden="true"></canvas>
+  <div class="hero-grid wrap">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="live"></span>Data Scientist · AI Engineer · Jaipur</p>
+      <h1>Hi, I'm Tanishka.<span class="iam">I am a</span></h1>
+
+      <div class="flip" id="flip" aria-live="polite">
+        <div class="rings" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="flip-stack" aria-hidden="true"><span></span><span></span></div>
+        <div class="flip-page" id="flipPage"><span class="flip-word" id="flipWord">Data Scientist</span><span class="flip-count" id="flipCount">01 / 04</span></div>
+        <div class="flip-page next" id="flipNext"><span class="flip-word"></span><span class="flip-count"></span></div>
+      </div>
+
+      <div class="btns">
+        <a class="btn primary magnetic" href="#work" data-hover>See my work <span class="arr" aria-hidden="true">↓</span></a>
+        <a class="btn ghost magnetic" href="#contact" data-hover>Hire me</a>
+      </div>
+    </div>
+
+    <figure class="me" id="me" data-hover>
+      <img class="me-bw" src="assets/tanishka.webp" alt="Tanishka Jain holding her first prize certificate and trophy from IISU-ASSET 2025">
+      <img class="me-color" src="assets/tanishka.webp" alt="" aria-hidden="true">
+      <figcaption class="me-hint"><span class="hint-desktop">Move your cursor over me</span><span class="hint-touch">Tap to bring me to colour</span></figcaption>
+      <div class="me-badge"><b>1st Prize</b><span>IISU-ASSET 2025</span></div>
+    </figure>
+  </div>
+  <div class="hero-strip wrap mono">
+    <span>Available for work</span><span>Remote or Jaipur, India</span><a href="#work" data-hover>Scroll to explore ↓</a>
+  </div>
+</section>
+
+<!-- ===== Marquee ===== -->
+<div class="marquee dark" aria-label="Tools I use">
+  <div class="track" id="track">
+    <span>Python</span><span>SQL</span><span>Power BI</span><span>Advanced Excel</span><span>PyTorch</span><span>TensorFlow</span><span>Gemini</span><span>Claude</span><span>RAG</span><span>LangChain</span><span>N8N</span><span>Next.js</span><span>React</span><span>Node.js</span><span>TypeScript</span><span>PostgreSQL</span><span>Redis</span><span>AWS</span>
+  </div>
+</div>
+
+<!-- ===== About ===== -->
+<section class="about paper" id="about">
+  <div class="wrap">
+    <div class="sec-head"><span class="mono">(01) About me</span><span class="mono">Jaipur, working worldwide</span></div>
+    <p class="statement" id="statement">I turn messy data into <b>dashboards leaders decide with,</b> train models that <b>recognise how people feel,</b> and ship <b>AI products people can actually use.</b> Analytics taught me to check every number. AI taught me to make those numbers speak.</p>
+
+    <div class="stats">
+      <div class="stat"><span class="num" data-count="9.8" data-dec="1">9.8</span><span class="unit">/10</span><p>CGPA, B.Sc. (Hons) Data Analytics &amp; AI</p></div>
+      <div class="stat"><span class="num" data-count="95">95</span><span class="unit">%</span><p>accuracy on my award-winning emotion model</p></div>
+      <div class="stat"><span class="num" data-count="30">30</span><span class="unit">%</span><p>faster reporting through automation</p></div>
+      <div class="stat"><span class="num" data-count="17">17</span><span class="unit">repos</span><p>public projects on GitHub</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Work ===== -->
+<section class="work-sec paper" id="work">
+  <div class="wrap">
+    <div class="sec-head"><span class="mono">(02) Selected work</span><span class="mono">Click a project for the full story</span></div>
+    <div class="title-row">
+      <h2 class="big">Things I've built</h2>
+      <div class="filters" role="group" aria-label="Filter projects">
+        <button class="filter" aria-pressed="true" data-f="all" data-hover>All</button>
+        <button class="filter" aria-pressed="false" data-f="ai" data-hover>AI &amp; ML</button>
+        <button class="filter" aria-pressed="false" data-f="data" data-hover>Data</button>
+        <button class="filter" aria-pressed="false" data-f="web" data-hover>Web apps</button>
+      </div>
+    </div>
+    <div class="work" id="workGrid"></div>
+  </div>
+</section>
+
+<!-- ===== What I do (tabs) ===== -->
+<section class="skills-sec paper" id="skills">
+  <div class="wrap">
+    <div class="sec-head"><span class="mono">(03) What I do</span><span class="mono">Usually on the same project</span></div>
+    <div class="skill-stage" id="skillStage">
+      <div class="skill-text">
+        <p class="kicker" id="skKicker"></p>
+        <h2 class="big" id="skTitle"></h2>
+        <p class="skill-desc" id="skDesc"></p>
+        <div class="chips" id="skChips"></div>
+      </div>
+      <div class="skill-art" id="skArt" aria-hidden="true"></div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Skill areas" id="tabs"></div>
+  </div>
+</section>
+
+<!-- ===== Story timeline ===== -->
+<section class="story" id="story">
+  <div class="wrap story-grid">
+    <div class="story-left">
+      <div class="story-sticky">
+        <span class="mono">(04) My story</span>
+        <h2 class="story-title">Let's go back in time.</h2>
+        <div class="year" id="year" aria-hidden="true"></div>
+        <p class="mono story-range" id="storyRange">Jun 2026 to now</p>
+        <div class="story-progress"><span id="storyIdx">01</span> / <span id="storyTotal">07</span><i><b id="storyBar"></b></i></div>
+      </div>
+    </div>
+    <ol class="story-list" id="storyList">
+      <li data-year="2026" data-range="Jun 2026 to now">
+        <span class="mono">Jun 2026 · Now</span>
+        <h3>AI Full Stack Developer &amp; Project Lead</h3>
+        <p class="org">Persist Ventures (US) · Remote</p>
+        <ul><li>Leading end-to-end delivery of 3Rings, an AI creator analytics platform.</li><li>Own the architecture, the AI pipeline and the AWS deployment, and coordinate design, engineering and product.</li></ul>
+      </li>
+      <li data-year="2026" data-range="2026">
+        <span class="mono">2026</span>
+        <h3>Started my M.Sc. in Data Science</h3>
+        <p class="org">Manipal Academy of Higher Education · Online</p>
+        <ul><li>Going deeper on statistics and machine learning alongside full-time work.</li></ul>
+      </li>
+      <li data-year="2026" data-range="Jan to May 2026">
+        <span class="mono">Jan to May 2026</span>
+        <h3>Full Stack Developer Intern</h3>
+        <p class="org">Prodesk · Remote</p>
+        <ul><li>Built VitalSync, a healthcare AI dashboard, and an AI cover letter generator.</li><li>Designed REST APIs with secure sign-in and shipped with CI/CD.</li></ul>
+      </li>
+      <li data-year="2025" data-range="March 2025">
+        <span class="mono">March 2025</span>
+        <h3>First prize at IISU-ASSET 2025</h3>
+        <p class="org">International Conference on AI Systems and Sustainable Technologies</p>
+        <ul><li>Won for my research on an emotional support chatbot for people facing cyberbullying.</li></ul>
+      </li>
+      <li data-year="2025" data-range="2025 · 2 months">
+        <span class="mono">2025 · 2 months</span>
+        <h3>AI Automation Intern</h3>
+        <p class="org">KodeCrave · Jaipur</p>
+        <ul><li>Designed N8N agentic workflows for international clients that classify, summarise and route information automatically.</li></ul>
+      </li>
+      <li data-year="2024" data-range="2024 · 2 months">
+        <span class="mono">2024 · 2 months</span>
+        <h3>Data Analyst Intern</h3>
+        <p class="org">Celebal Technologies · Remote</p>
+        <ul><li>Automated reporting with Python and Power Query, making it 30% faster.</li><li>Built executive Power BI dashboards from large SQL datasets.</li></ul>
+      </li>
+      <li data-year="2023" data-range="2023">
+        <span class="mono">2023</span>
+        <h3>Where it all started</h3>
+        <p class="org">B.Sc. (Hons) Data Analytics &amp; AI · IIS University, Jaipur</p>
+        <ul><li>Fell for data in the classroom. Now holding a 9.8 CGPA and serving as Joint Secretary of the Student Council.</li></ul>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===== Recognition & certifications ===== -->
+<section class="recog paper" id="recognition">
+  <div class="wrap">
+    <div class="sec-head"><span class="mono">(05) Recognition</span><span class="mono">Awards, certifications, education</span></div>
+    <h2 class="big">Awards &amp; certifications</h2>
+
+    <div class="awards">
+      <article class="award" data-hover>
+        <span class="medal">1st</span>
+        <div><h3>IIIM Hackathon 3.0</h3><p>First prize for my emotion-aware chatbot that supports people facing cyberbullying.</p></div>
+      </article>
+      <article class="award" data-hover>
+        <span class="medal">1st</span>
+        <div><h3>IISU-ASSET 2025</h3><p>First prize for the paper "Emotional Support Chatbot for Cyberbullying", International Conference on AI Systems and Sustainable Technologies, March 2025.</p></div>
+      </article>
+      <article class="award" data-hover>
+        <span class="medal small">JS</span>
+        <div><h3>Joint Secretary, Student Council</h3><p>Coordinated university-wide programmes across departments at IIS University.</p></div>
+      </article>
+    </div>
+
+    <h3 class="sub">Certifications</h3>
+    <div class="certs" id="certs"></div>
+
+    <div class="edu">
+      <div class="edu-card">
+        <span class="mono">Now</span>
+        <h3>M.Sc. Data Science</h3>
+        <p>Manipal Academy of Higher Education · Online · 2026 to now</p>
+      </div>
+      <div class="edu-card accent">
+        <span class="mono">CGPA 9.8 / 10</span>
+        <h3>B.Sc. (Hons) Data Analytics &amp; AI</h3>
+        <p>IIS University, Jaipur · 2023 to now</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GitHub ===== -->
+<section class="gh dark" id="github">
+  <div class="wrap">
+    <div class="sec-head"><span class="mono">(06) GitHub</span><a class="mono" href="https://github.com/Tanishkaa-py" target="_blank" rel="noopener" data-hover>github.com/Tanishkaa-py ↗</a></div>
+    <div class="title-row">
+      <h2 class="big">More from my GitHub</h2>
+      <p class="gh-sub">Real-time apps, AI tools and dashboards I've built while learning and shipping.</p>
+    </div>
+    <div class="repos" id="repos"></div>
+    <a class="btn ghost light magnetic" href="https://github.com/Tanishkaa-py?tab=repositories" target="_blank" rel="noopener" data-hover>See all 17 repositories ↗</a>
+  </div>
+</section>
+
+<!-- ===== Contact ===== -->
+<section class="contact dark" id="contact">
+  <div class="wrap">
+    <span class="mono">(07) Contact</span>
+    <h2 class="huge">Let's build<br>something <em>useful.</em></h2>
+    <div class="contact-row">
+      <p>Hiring for a data, AI or full-stack role, or have a project in mind? I usually reply within a day.</p>
+      <div class="contact-links">
+        <button class="clink" id="copyEmail" type="button" data-hover><span>work.tanishkajain@gmail.com</span><span class="k" id="copyLabel">Copy</span></button>
+        <a class="clink" href="https://www.linkedin.com/in/tanishkajain16/" target="_blank" rel="noopener" data-hover><span>LinkedIn</span><span class="k">↗</span></a>
+        <a class="clink" href="https://github.com/Tanishkaa-py" target="_blank" rel="noopener" data-hover><span>GitHub</span><span class="k">↗</span></a>
+      </div>
+    </div>
+    <footer class="foot mono"><span>© 2026 Tanishka Jain</span><span>Designed &amp; built in Jaipur</span><a href="#top" data-hover>Back to top ↑</a></footer>
+  </div>
+</section>
+</main>
+
+<dialog id="modal" aria-labelledby="mTitle">
+  <div class="m-inner">
+    <button class="m-close" id="mClose" aria-label="Close project details" data-hover>×</button>
+    <div class="m-top">
+      <div>
+        <span class="mono" id="mKicker"></span>
+        <h2 id="mTitle"></h2>
+        <p class="lead" id="mLead"></p>
+        <div class="m-links" id="mLinks"></div>
+      </div>
+      <dl class="meta" id="mMeta"></dl>
+    </div>
+    <div class="m-art" id="mArt"></div>
+    <div class="m-body">
+      <div><h4>Overview</h4><p id="mOverview"></p></div>
+      <div><h4>What I did</h4><ul id="mDid"></ul></div>
+    </div>
+  </div>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
