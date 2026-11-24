@@ -45,7 +45,6 @@
           <button class="tc-orb" type="button" data-act="orb" aria-label="Pause tour" data-hover><span class="tc-orb-ball" aria-hidden="true"></span><span class="tc-orb-play" aria-hidden="true">${I.play}</span></button>
           <span class="tc-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
         </div>
-        <span class="tc-count mono" aria-hidden="true"></span>
       </div>
       <div class="tc-main">
         <div class="tc-choices" role="group" aria-label="Choose a tour">
@@ -53,19 +52,22 @@
           <button class="tc-choice" type="button" data-mode="highlights" data-hover><small>Recruiter in a hurry?</small><b>Highlights · 1 min</b></button>
         </div>
         <div class="tc-cap"><p class="tc-text" aria-live="polite"></p></div>
+      </div>
+      <div class="tc-foot">
         <p class="tc-hint" hidden><i></i><span></span></p>
         <div class="tc-end" hidden>
           <a class="tc-pill primary" href="mailto:work.tanishkajain@gmail.com" data-hover>Get in touch</a>
-          <button class="tc-pill" type="button" data-act="replay" data-hover>Replay tour</button>
           <button class="tc-pill" type="button" data-act="ask" data-hover>Or ask my AI anything</button>
+          <button class="tc-pill" type="button" data-act="replay" data-hover>Replay tour</button>
+        </div>
+        <div class="tc-ctl">
+          <button class="tc-btn" type="button" data-act="play" aria-label="Pause tour" data-hover>${I.pause}</button>
+          <button class="tc-btn" type="button" data-act="next" aria-label="Next" data-hover>${I.next}</button>
+          <button class="tc-btn" type="button" data-act="mute" aria-pressed="false" aria-label="Mute voice (captions only)" data-hover>${I.sound}</button>
+          <button class="tc-btn" type="button" data-act="close" aria-label="Close tour" data-hover>${I.close}</button>
         </div>
       </div>
-      <div class="tc-ctl">
-        <button class="tc-btn" type="button" data-act="play" aria-label="Pause tour" data-hover>${I.pause}</button>
-        <button class="tc-btn" type="button" data-act="next" aria-label="Next" data-hover>${I.next}</button>
-        <button class="tc-btn" type="button" data-act="mute" aria-pressed="false" aria-label="Mute voice (captions only)" data-hover>${I.sound}</button>
-        <button class="tc-btn" type="button" data-act="close" aria-label="Close tour" data-hover>${I.close}</button>
-      </div>
+      <span class="tc-count sr-only"></span>
       <span class="tc-progress" aria-hidden="true"><i></i></span>
     </div>`;
   document.body.append(ui);
@@ -95,29 +97,56 @@
     } catch { analyser = null; }
     try { audio.src = SILENT; const p = audio.play(); if (p) p.catch(() => {}); } catch {}
   };
-  const isClipSrc = () => clip && audio.currentSrc.endsWith(`/assets/tour/${clip.id}.mp3`);
-  audio.addEventListener('playing', () => { if (isClipSrc() && clip.slowScroll) slowScroll(); });
+  /* Clip audio is downloaded up front (one clip after another, so the next is ready before it's needed) and played
+     from a local blob: URL. Streaming each MP3 at the moment it should play made playback depend on the network
+     mid-tour: an occasionally slow or stalled request (seen live: 10 s and 43 s waits) left a clip silent with
+     "NotSupportedError", or froze it halfway so the tour never moved on. */
+  const blobs = new Map(); // clip id -> Promise<blob: URL | null>
+  const fetchClip = (id, attempt = 1) => fetch(`assets/tour/${id}.mp3`, { signal: AbortSignal.timeout(10000) })
+    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.blob(); })
+    .then(b => URL.createObjectURL(b))
+    .catch(e => {
+      if (attempt < 2) return fetchClip(id, attempt + 1);
+      console.warn(`[tour] clip ${id}: audio download failed (${e.name === 'TimeoutError' ? 'timed out' : e.message}); using captions`);
+      return null;
+    });
+  const clipUrl = id => { if (!blobs.has(id)) blobs.set(id, fetchClip(id)); return blobs.get(id); };
+  const prefetch = async ids => { for (const id of ids) await clipUrl(id); };
+  let audioFor = null, voiceReady = false, voiceAsked = 0, lastMove = 0, lastPos = -1;
+  const isClipSrc = () => clip && audioFor === clip.id;
+  audio.addEventListener('playing', () => { if (!isClipSrc()) return; voiceReady = true; lastMove = performance.now(); if (clip.slowScroll) slowScroll(); });
   audio.addEventListener('ended', () => { if (isClipSrc()) audioDone = true; });
-  audio.addEventListener('error', () => { if (isClipSrc()) fallback(); });
+  audio.addEventListener('error', () => { if (isClipSrc()) giveUp(`audio error (${audio.error ? audio.error.message || 'code ' + audio.error.code : 'unknown'})`); });
+  // wait until the element can actually play the new source (or give up after ms)
+  const canPlay = ms => new Promise(res => {
+    if (audio.readyState >= 3) return res(true);
+    const done = ok => { clearTimeout(tm); audio.removeEventListener('canplay', yes); audio.removeEventListener('error', no); res(ok); };
+    const yes = () => done(true), no = () => done(false), tm = setTimeout(() => done(false), ms);
+    audio.addEventListener('canplay', yes); audio.addEventListener('error', no);
+  });
 
   /* ---------- state ---------- */
   let list = [], idx = -1, mode = 'full', running = false, paused = false, live = false;
   let muted = store.get('tour-muted') === '1';
   let clip = null, t = 0, last = 0, readMs = 0, voice = false, audioDone = false, acted = false, interacted = false;
   let token = 0, ticker = 0, vraf = 0, offs = [], marked = [], slowOn = false, dimEl = null;
-  let words = [], cum = [], shownK = -1, lineH = 0, bump = 0;
+  let words = [], cum = [], shownK = -1, bump = 0;
   const on = (el, ev, fn, opt) => { el.addEventListener(ev, fn, opt); offs.push(() => el.removeEventListener(ev, fn, opt)); };
   const mark = (el, cls) => { if (el) { el.classList.add(cls); marked.push([el, cls]); } };
 
   /* ---------- scrolling (the site's Lenis instance; instant with reduced motion) ---------- */
   const headroom = () => (innerWidth <= 620 ? 76 : 96); // keep targets clear of the top bar
   const maxY = () => root.scrollHeight - innerHeight;
+  // the tour's own scrolling (and 1 s after it) must never count as the visitor scrolling: see userScroll()
+  let tourScrollUntil = 0;
+  const markTourScroll = ms => { tourScrollUntil = Math.max(tourScrollUntil, performance.now() + ms); };
   const scrollY_ = (y, opt = {}) => new Promise(res => {
     y = Math.max(0, Math.min(y, maxY()));
     const L = window.siteLenis;
-    if (!L || reduce) { window.scrollTo(0, y); return res(); }
-    let done = false; const fin = () => { if (!done) { done = true; res(); } };
+    if (!L || reduce) { markTourScroll(1000); window.scrollTo(0, y); return res(); }
+    let done = false; const fin = () => { if (!done) { done = true; markTourScroll(1000); res(); } };
     const dur = opt.duration ?? Math.min(1.6, .6 + Math.abs(y - scrollY) / 2500);
+    markTourScroll(dur * 1000 + 1300);
     L.scrollTo(y, { duration: dur, easing: opt.easing, force: true, onComplete: fin });
     setTimeout(fin, dur * 1000 + 300);
   });
@@ -146,7 +175,7 @@
     const endY = lastLi.getBoundingClientRect().top + scrollY + lastLi.offsetHeight / 2 - innerHeight / 2;
     const total = voice && isFinite(audio.duration) ? audio.duration * 1000 : readMs;
     const left = Math.max(1200, total - t - 600);
-    slowOn = true;
+    slowOn = true; markTourScroll(left + 1000);
     if (reduce || !window.siteLenis) { const my = token; setTimeout(() => { if (my === token && !paused) window.scrollTo(0, endY); }, left / 2); return; }
     window.siteLenis.scrollTo(endY, { duration: left / 1000, easing: x => x, force: true, onComplete: () => { slowOn = false; } });
   };
@@ -162,6 +191,41 @@
   const dimOn = el => { dimEl = el; placeDim(); dim.classList.add('on'); };
   const dimOff = () => { dimEl = null; dim.classList.remove('on'); };
 
+  /* ---------- card placement: never cover the stop's target or its main text ----------
+     Desktop: the card sits in the bottom slot (left, centre or right) that overlaps least with what matters on this
+     stop (its ring/target, its "keep" text, a spotlit button). If that still covers it, the page scrolls up just
+     enough. Phones: the card is a full-width bottom bar, so only the scrolling applies. */
+  const GAP = 24;
+  let slot = 'centre';
+  const protectedRects = () => {
+    if (!clip) return [];
+    const a = clip.action || {};
+    return [clip.keep, clip.ring === false ? null : (clip.ring || clip.target), a.highlight]
+      .filter(Boolean).map(s => $(s)).filter(Boolean).map(el => el.getBoundingClientRect())
+      .filter(r => r.width && r.height && r.bottom > 0 && r.top < innerHeight);
+  };
+  function placeCard(scroll) {
+    if (ui.hidden || !clip || ui.dataset.state === 'paused') return Promise.resolve();
+    const rects = protectedRects(), ch = card.offsetHeight, cw = card.offsetWidth;
+    const top = innerHeight - (phoneMQ.matches ? 8 : 22) - ch - 16; // top edge of the card, plus breathing room
+    let span = [0, innerWidth];
+    if (!phoneMQ.matches) {
+      const xs = { centre: (innerWidth - cw) / 2, left: GAP, right: innerWidth - GAP - cw };
+      const cover = x => rects.reduce((sum, r) => sum + Math.max(0, Math.min(r.right, x + cw) - Math.max(r.left, x)) * Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, top)), 0);
+      let best = 'centre', bestV = cover(xs.centre);
+      for (const s of ['left', 'right']) { const v = cover(xs[s]); if (v < bestV - 1) { best = s; bestV = v; } }
+      if (best !== slot) { slot = best; ui.dataset.slot = best; }
+      span = [xs[best], xs[best] + cw];
+    }
+    if (!scroll) return Promise.resolve();
+    const under = rects.filter(r => r.right > span[0] && r.left < span[1]); // only what's horizontally under the card
+    if (!under.length) return Promise.resolve();
+    const need = Math.max(...under.map(r => r.bottom)) - top;
+    const room = Math.min(...under.map(r => r.top)) - headroom(); // never push the content's top under the top bar
+    const delta = Math.min(need, room);
+    return delta > 4 ? scrollY_(scrollY + delta) : Promise.resolve();
+  }
+
   /* ---------- caption: words light up as they're spoken ---------- */
   const setCaption = str => {
     text.innerHTML = str.split(/(\s+)/).map(w => (/^\s+$/.test(w) ? w : `<span class="w">${w.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`)).join('');
@@ -170,18 +234,26 @@
     const wts = words.map(w => w.textContent.length + 2 + (/[.!?]$/.test(w.textContent) ? 6 : /[,:;]$/.test(w.textContent) ? 3 : 0));
     const sum = wts.reduce((a, b) => a + b, 0); let acc = 0;
     cum = wts.map(x => (acc += x) / sum);
-    shownK = -1; text.style.transform = ''; lineH = parseFloat(getComputedStyle(text).lineHeight) || 22;
+    shownK = -1; fitCaption();
+  };
+  // the whole caption is always visible from its first word: up to 3 lines on desktop and 4 on phones; a longer
+  // caption gets a slightly smaller font rather than being clipped or scrolled
+  const phoneMQ = matchMedia('(max-width:620px)');
+  const fitCaption = () => {
+    const ph = phoneMQ.matches, maxLines = ph ? 4 : 3, min = ph ? 12 : 13;
+    let size = ph ? 14.5 : 16;
+    text.style.fontSize = size + 'px';
+    while (size > min && text.offsetHeight > Math.ceil(maxLines * size * 1.45) + 1) { size -= .5; text.style.fontSize = size + 'px'; }
   };
   const paintWords = k => {
     if (k === shownK) return;
     if (k > shownK) bump = 1;
     shownK = k;
     words.forEach((w, i) => { w.className = i < k ? 'w said' : i === k ? 'w now' : 'w'; });
-    const cur = words[Math.min(k, words.length - 1)];
-    if (cur) { const line = Math.round(cur.offsetTop / lineH); text.style.transform = `translateY(${-Math.max(0, line - 1) * lineH}px)`; } // keep the spoken line visible
   };
   const clipProgress = () => {
     if (!live || !clip) return 0;
+    if (voice && !voiceReady) return 0; // audio still loading: hold the caption at its first word
     if (voice && isFinite(audio.duration) && audio.duration > 0) return Math.min(1, audio.currentTime / audio.duration);
     const tn = t + (paused ? 0 : performance.now() - last);
     return Math.min(1, tn / readMs);
@@ -216,17 +288,39 @@
     offs.forEach(f => f()); offs = [];
     marked.forEach(([el, cls]) => el.classList.remove(cls)); marked = [];
     hint.hidden = true; live = false; slowOn = false; dimOff();
+    audioFor = null; voiceReady = false;
     if (!audio.paused) audio.pause();
   };
   const fallback = () => { if (!voice) return; voice = false; if (clip && clip.slowScroll && !slowOn) slowScroll(); };
-  const startVoice = c => {
-    voice = false; audioDone = false;
-    if (muted) return;
-    voice = true;
-    audio.src = `assets/tour/${c.id}.mp3`;
-    const my = token, p = audio.play();
-    if (p) p.catch(() => { if (my === token) fallback(); });
+  // the voice failed (download, load, play or a stall): log it with the clip id and finish this clip on captions
+  const giveUp = reason => {
+    if (!voice || !clip) return;
+    console.warn(`[tour] clip ${clip.id}: ${reason}; continuing with captions`);
+    if (!audio.paused) audio.pause();
+    readMs = Math.max(readMs, t + 2500); // give the reader time for the rest of the caption
+    fallback();
   };
+  const doPlay = () => {
+    const my = token, id = clip.id;
+    const p = audio.play();
+    if (p) p.catch(e => { if (my === token && audioFor === id) giveUp(`play() rejected (${e.name}: ${e.message})`); });
+  };
+  // every clip: get its (pre-downloaded) audio, set the source, wait until it can play, then play
+  async function startVoice(c) {
+    voice = false; audioDone = false; voiceReady = false; audioFor = null;
+    if (muted) return;
+    voice = true; voiceAsked = performance.now(); lastPos = -1;
+    const my = token;
+    const url = await Promise.race([clipUrl(c.id), sleep(8000).then(() => 'slow')]);
+    if (my !== token || !voice) return;
+    if (!url) return giveUp('audio unavailable');
+    if (url === 'slow') return giveUp('audio took too long to download');
+    audioFor = c.id; audio.src = url;
+    const ok = await canPlay(5000);
+    if (my !== token || !voice) return;
+    if (!ok) return giveUp(`audio couldn't load (${audio.error ? audio.error.message || 'code ' + audio.error.code : 'not ready in time'})`);
+    if (!paused) doPlay(); // if paused meanwhile, resume() plays it
+  }
   const armWait = w => {
     acted = false; interacted = false;
     const done = () => { if (acted) return; acted = true; interacted = true; hint.hidden = true; marked.filter(([, c]) => c === 'tour-wait').forEach(([el]) => el.classList.remove('tour-wait')); };
@@ -245,16 +339,19 @@
     if (clip.playIf === 'interacted' && !interacted) return play(i + 1);
     t = 0; audioDone = false; acted = false; readMs = readTime(clip.caption);
     setCaption(clip.caption);
-    count.textContent = `${i + 1} / ${list.length}`;
+    count.textContent = `Step ${i + 1} of ${list.length}`; // screen readers only: the progress line shows it visually
     endBox.hidden = true; btn('next').disabled = false; setState('playing');
     // change the page first (doors, cards), then scroll to what the clip is about
     const a = clip.action || {};
+    if (a.closeDoors || a.openDoor || a.expandCard) markTourScroll(2500); // opening a door can scroll the page too
     if (a.closeDoors && window.closeDoors) window.closeDoors();
     if (a.openDoor && window.openDoor) window.openDoor(a.openDoor);
     if (a.expandCard && window.expandCard) { window.expandCard(a.expandCard); await sleep(reduce ? 0 : 700); } // let the card finish widening
     if (a.develop) mark($(a.develop), 'full');
     if (my !== token) return;
     await toTarget(clip);
+    if (my !== token) return;
+    await placeCard(true); // pick the emptiest bottom slot; scroll a little more if the card would still cover the stop
     if (my !== token) return;
     if (clip.ring !== false) { const el = $(clip.ring || clip.target); if (el) dimOn(el); }
     if (a.highlight) mark($(a.highlight), 'tour-spot');
@@ -269,10 +366,16 @@
     const now = performance.now(), dt = now - last; last = now;
     if (!running || paused || !live) return;
     t += dt;
+    // watchdog: the voice must start within 8 s and keep moving, or the clip finishes on captions (never stuck)
+    if (voice && !audioDone) {
+      if (!voiceReady) { if (now - voiceAsked > 8000 && audioFor) giveUp('audio did not start within 8 s'); }
+      else if (audio.currentTime !== lastPos) { lastPos = audio.currentTime; lastMove = now; }
+      else if (now - lastMove > 5000) giveUp(`audio stalled at ${audio.currentTime.toFixed(1)} s${audio.paused ? ' (paused by the browser)' : ''}`);
+    }
     if (!voice && t >= readMs) audioDone = true;
     const waited = !clip.wait || acted || t >= clip.wait.timeoutMs;
     if (!audioDone || !waited) return;
-    if (clip.end) { live = false; paintWords(words.length); barEl.style.transform = 'scaleX(1)'; hint.hidden = true; endBox.hidden = false; btn('next').disabled = true; setState('ended'); return; }
+    if (clip.end) { live = false; paintWords(words.length); barEl.style.transform = 'scaleX(1)'; hint.hidden = true; endBox.hidden = false; btn('next').disabled = true; setState('ended'); requestAnimationFrame(() => placeCard(true)); return; } // the end buttons make the card taller: keep it clear of the content
     play(idx + 1);
   };
 
@@ -296,11 +399,11 @@
     if (!clip || !live) { if (clip && !clip.end) play(idx); return; }
     const my = token;
     if (clip.slowScroll && t > 0) slowScroll();
-    else { await toTarget(clip); if (my !== token || paused) return; }
+    else { await toTarget(clip); if (my !== token || paused) return; await placeCard(true); if (my !== token || paused) return; }
     if (dimEl) dim.classList.add('on');
-    last = performance.now(); kick();
+    last = performance.now(); lastMove = last; voiceAsked = Math.max(voiceAsked, last - 1); kick();
     if (t === 0 && !voice && !audioDone) { startVoice(clip); if (!voice && clip.slowScroll) slowScroll(); }
-    else if (voice && !audioDone) audio.play().catch(() => fallback());
+    else if (voice && !audioDone && audioFor === clip.id && audio.readyState >= 2) doPlay(); // still loading? startVoice plays it when ready
   }
   const toggleMute = () => {
     muted = !muted; store.set('tour-muted', muted ? '1' : '0'); syncButtons();
@@ -336,6 +439,8 @@
   const SCROLL_KEYS = ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '];
   const userScroll = e => {
     if (!running || paused || !live) return;
+    if (!e.isTrusted) return; // only real visitor input, never synthetic events
+    if (performance.now() < tourScrollUntil) return; // the tour is scrolling (or just finished): not the visitor
     if (e.target.closest && e.target.closest('#tour')) return;
     if (e.type === 'keydown' && (!SCROLL_KEYS.includes(e.key) || e.target.closest('button, a, input, textarea, select, [contenteditable]'))) return;
     pause();
@@ -351,7 +456,14 @@
     if ((modal && modal.open) || document.body.classList.contains('menu-open')) return; // Esc closes those first
     finish(true);
   });
-  addEventListener('resize', placeDim);
+  addEventListener('resize', () => { placeDim(); if (!ui.hidden) { fitCaption(); placeCard(false); } });
+
+  /* ---------- the custom cursor's ring hides over the card's buttons, so it never sits on top of them ---------- */
+  const cursorEl = $('.cursor');
+  if (cursorEl) {
+    card.addEventListener('pointerover', e => cursorEl.classList.toggle('ring-off', !!e.target.closest('button, a')));
+    card.addEventListener('pointerleave', () => cursorEl.classList.remove('ring-off'));
+  }
 
   /* ---------- start / finish ---------- */
   async function start(m) {
@@ -362,6 +474,7 @@
     try { d = await load(); }
     catch { setCaption('Sorry, the tour couldn\'t load. Please try again in a moment.'); paintWords(99); setTimeout(() => finish(), 4000); return; }
     list = m === 'highlights' ? d.highlights.map(id => d.clips.find(c => c.id === id)).filter(Boolean) : d.clips.filter(c => c.only !== 'highlights');
+    if (!muted) prefetch(list.map(c => c.id)); // download every clip in order, in the background
     running = true; paused = false; interacted = false;
     syncButtons();
     if (!ticker) ticker = setInterval(tick, 50);
@@ -372,7 +485,8 @@
     token++; running = false; paused = false;
     cleanupClip(); clip = null; words = [];
     clearInterval(ticker); ticker = 0;
-    ui.hidden = true; delete ui.dataset.state;
+    ui.hidden = true; delete ui.dataset.state; slot = 'centre'; ui.dataset.slot = 'centre';
+    if (cursorEl) cursorEl.classList.remove('ring-off');
     root.classList.remove('tour-on'); startBtn.setAttribute('aria-expanded', 'false');
     if (byUser || ui.contains(document.activeElement)) startBtn.focus({ preventScroll: true });
   }

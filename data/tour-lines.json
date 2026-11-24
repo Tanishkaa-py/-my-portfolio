@@ -1,5 +1,5 @@
 {
-  "_readme": "Single source of truth for the guided tour (js/tour.js) and the audio generator (scripts/generate-tour-audio.mjs). Clips play in this order. Audio for each clip is assets/tour/{id}.mp3. target: what the tour scrolls to. ring: what stays bright while the rest of the page gently dims (defaults to target; false = no highlight, used for the hero). wait: pause until the visitor hovers/clicks, or the timeout. playIf: 'interacted' plays only if the previous wait was answered. only: 'highlights' keeps a clip out of the full tour. speech (optional): different text for the voice, if the caption reads badly aloud.",
+  "_readme": "Single source of truth for the guided tour (js/tour.js) and the audio generator (scripts/generate-tour-audio.mjs). Clips play in this order. Audio for each clip is assets/tour/{id}.mp3. target: what the tour scrolls to. ring: what stays bright while the rest of the page gently dims (defaults to target; false = no highlight, used for the hero). keep (optional, layout only): content the tour card must not cover, e.g. the text beside the ring. wait: pause until the visitor hovers/clicks, or the timeout. playIf: 'interacted' plays only if the previous wait was answered. only: 'highlights' keeps a clip out of the full tour. speech (optional): different text for the voice, if the caption reads badly aloud.",
   "highlights": ["01h", "04", "05", "08"],
   "clips": [
     {
@@ -64,6 +64,7 @@
       "id": "06",
       "target": "#story",
       "ring": ".story-now",
+      "keep": "#storyList",
       "slowScroll": true,
       "caption": "Want the origin story? Watch the year roll back, from leading a product in 2026 to a classroom in Jaipur in 2023."
     },
@@ -77,6 +78,7 @@
       "id": "08",
       "target": "#contact",
       "ring": ".contact-links",
+      "keep": ".contact-row",
       "end": true,
       "caption": "That's the tour! If anything caught your eye, her inbox is right here, and she usually replies within a day. Thanks for visiting."
     }
