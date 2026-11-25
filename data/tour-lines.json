@@ -77,10 +77,10 @@
     {
       "id": "08",
       "target": "#contact",
-      "ring": ".contact-links",
-      "keep": ".contact-row",
+      "ring": "#contactBox",
+      "keep": ".contact-links",
       "end": true,
-      "caption": "That's the tour! If anything caught your eye, her inbox is right here, and she usually replies within a day. Thanks for visiting."
+      "caption": "That's the tour! Want to reach her? Drop a message right here and watch an AI workflow handle it live. She usually replies within a day. Thanks for visiting."
     }
   ]
 }

@@ -56,7 +56,7 @@
       <div class="tc-foot">
         <p class="tc-hint" hidden><i></i><span></span></p>
         <div class="tc-end" hidden>
-          <a class="tc-pill primary" href="mailto:work.tanishkajain@gmail.com" data-hover>Get in touch</a>
+          <button class="tc-pill primary" type="button" data-act="contact" data-hover>Get in touch</button>
           <button class="tc-pill" type="button" data-act="ask" data-hover>Or ask my AI anything</button>
           <button class="tc-pill" type="button" data-act="replay" data-hover>Replay tour</button>
         </div>
@@ -420,6 +420,7 @@
     if (act === 'close') return finish(true);
     if (act === 'replay') { unlockAudio(); return start(mode); }
     if (act === 'ask') { finish(false); return window.openAssistant(); }
+    if (act === 'contact') { finish(false); return window.focusContactForm ? window.focusContactForm() : (location.href = 'mailto:work.tanishkajain@gmail.com'); } // scroll to the form, cursor in Name
   });
 
   /* ---------- opening the card from the hero button ---------- */

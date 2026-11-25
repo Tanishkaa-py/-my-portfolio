@@ -6,19 +6,17 @@
 //   {"t":"text","v":"…"}                       part of the answer
 //   {"t":"open","id":"rings"}                  open this project's door and card
 //   {"t":"jobfit","requirements":[…],"summary"} job-fit breakdown for the page to show
+//   {"t":"message","name","email","message","topic"} a message to Tanishka for the visitor to check and send
 //   {"t":"error","code","message"}             friendly error
 //   {"t":"done","remaining":17}
 // GEMINI_API_KEY is read here only and never sent to the browser.
 import { streamText, isStepCount } from 'ai';
-import { createGoogle } from '@ai-sdk/google';
 import { search, loadProfile } from './_lib/profile.js';
 import { instructions } from './_lib/prompt.js';
 import { makeTools } from './_lib/tools.js';
 import { check, visitorKey, LIMIT } from './_lib/ratelimit.js';
+import { makeModel, providerOptions, hasKey } from './_lib/gemini.js';
 
-// gemini-3.5-flash-lite: answers in ~1-2 s. (In testing, gemini-3.8-flash was overloaded (503) and gemini-3.5-flash
-// took over 15 s, so both hit the timeout.) Override with the GEMINI_MODEL environment variable.
-const MODEL_ID = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 const TIMEOUT_MS = 15000;
 const MAX_TURNS = 10, MAX_CHARS = 1500, MAX_JD_CHARS = 6000;
 
@@ -36,7 +34,7 @@ export function POST(request) { return handleChat(request); }
 
 // handleChat takes an optional model so the endpoint can be tested with a mock (no key, no cost); production passes none
 export async function handleChat(request, { model: injected } = {}) {
-  if (!injected && !process.env.GEMINI_API_KEY) return json(503, { error: 'offline', message: MESSAGES.offline });
+  if (!injected && !hasKey()) return json(503, { error: 'offline', message: MESSAGES.offline });
 
   const limit = check(visitorKey(request));
   if (!limit.ok) return json(429, { error: 'rate', message: MESSAGES.rate, retryAfter: limit.retryAfter }, { 'retry-after': String(limit.retryAfter) });
@@ -50,10 +48,7 @@ export async function handleChat(request, { model: injected } = {}) {
   const messages = turns.map((m, i) => ({ role: m.role, content: m.content.slice(0, i === turns.length - 1 && body.jd ? MAX_JD_CHARS : MAX_CHARS) }));
   const question = messages[messages.length - 1].content;
 
-  const model = injected || createGoogle({ apiKey: process.env.GEMINI_API_KEY })(MODEL_ID);
-  // keep the model's hidden "thinking" minimal: faster replies, and it doesn't eat the answer's token budget
-  // ('low', not 'minimal': gemini-3.8-flash rejects 'minimal' with "Thinking level MINIMAL is not supported")
-  const providerOptions = { google: { thinkingConfig: /^gemini-2\./.test(MODEL_ID) ? { thinkingBudget: 0 } : { thinkingLevel: process.env.GEMINI_THINKING || 'low' } } };
+  const model = injected || makeModel(); // model and thinking settings: api/_lib/gemini.js
   const retrieved = search(question.slice(0, 1500), 3);
 
   const enc = new TextEncoder();
@@ -86,6 +81,7 @@ export async function handleChat(request, { model: injected } = {}) {
               const out = part.output || {};
               send({ t: 'step-done', id: part.toolCallId, detail: resultDetail(part.toolName, out) });
               if (part.toolName === 'openProject' && out.opened) send({ t: 'open', id: out.projectId });
+              if (part.toolName === 'leaveMessage' && out.ready) send({ t: 'message', name: out.name, email: out.email, message: out.message, topic: out.topic || '' });
               if (part.toolName === 'analyzeJobFit') send({ t: 'jobfit', requirements: out.requirements || [], summary: out.summary || '' });
               break;
             }
@@ -107,13 +103,13 @@ export async function handleChat(request, { model: injected } = {}) {
   return new Response(stream, { headers: { 'content-type': 'application/x-ndjson; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } });
 }
 
-const LABELS = { searchProfile: 'Searched her profile again', analyzeJobFit: 'Checked the job description against her profile', openProject: 'Opened a project on the page', leaveMessage: 'Sent your message to Tanishka' };
+const LABELS = { searchProfile: 'Searched her profile again', analyzeJobFit: 'Checked the job description against her profile', openProject: 'Opened a project on the page', leaveMessage: 'Prepared your message to Tanishka' };
 const callDetail = (tool, input = {}) => tool === 'searchProfile' ? `“${String(input.query || '').slice(0, 60)}”`
   : tool === 'openProject' ? (loadProfile().projects.find(p => p.id === input.projectId)?.title || input.projectId)
   : tool === 'analyzeJobFit' ? `${String(input.jobDescription || '').split(/\s+/).length} words` : '';
 const resultDetail = (tool, out) => tool === 'searchProfile' ? (out.sections?.map(s => s.name).join(' · ') || 'Nothing found')
   : tool === 'analyzeJobFit' ? ['strong', 'partial', 'gap'].map(r => `${(out.requirements || []).filter(x => x.rating === r).length} ${r}`).join(' · ')
   : tool === 'openProject' ? (out.opened ? `Showing ${out.title}` : 'Not found')
-  : tool === 'leaveMessage' ? (out.sent ? 'Delivered' : `Still needed: ${(out.needs || []).join(', ')}`) : 'Done';
+  : tool === 'leaveMessage' ? (out.ready ? 'Ready for you to check and send' : `Still needed: ${(out.needs || []).join(', ')}`) : 'Done';
 
 export function GET() { return json(405, { error: 'method', message: 'Use POST.' }, { allow: 'POST' }); }

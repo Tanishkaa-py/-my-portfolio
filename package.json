@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@ai-sdk/google": "4.0.124",
-    "ai": "7.0.179"
+    "ai": "7.0.179",
+    "nodemailer": "10.5.0"
   },
   "type": "module"
 }

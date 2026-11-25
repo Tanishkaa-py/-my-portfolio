@@ -1,8 +1,9 @@
 // The assistant's four tools (AI SDK tool calling). Schemas use the SDK's jsonSchema() helper, so no extra library.
 import { tool, jsonSchema, generateText, Output } from 'ai';
 import { loadProfile, search } from './profile.js';
+import { validate, TOPICS } from './workflow.js';
 
-const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[a-z]{2,24}$/i;
+const NEEDS = { name: 'a name (2 to 80 characters)', email: 'a valid email address', message: 'a message (at least 10 characters)' };
 
 export function makeTools(model, providerOptions) {
   const { projects, full } = loadProfile();
@@ -61,19 +62,18 @@ ${full}`,
       }
     }),
 
+    // leaveMessage only PREPARES the message: the visitor checks it in the chat and presses Send, which runs the same
+    // contact workflow as the form (api/contact.js: Turnstile, limit, AI sorting, emails), shown as the same diagram.
     leaveMessage: tool({
-      description: 'Send Tanishka a message from the visitor. Only call with a real name, email and message the visitor provided.',
-      inputSchema: jsonSchema({ type: 'object', properties: { name: { type: 'string' }, email: { type: 'string' }, message: { type: 'string' } }, required: ['name', 'email', 'message'] }),
-      execute: async ({ name, email, message }) => {
-        name = String(name || '').trim(); email = String(email || '').trim(); message = String(message || '').trim();
-        const problems = [];
-        if (name.length < 2 || name.length > 80) problems.push('a name (2 to 80 characters)');
-        if (!EMAIL.test(email)) problems.push('a valid email address');
-        if (message.length < 5 || message.length > 2000) problems.push('a message (5 to 2000 characters)');
-        if (problems.length) return { sent: false, needs: problems };
-        // TODO (N8N): POST { name, email, message } to the N8N webhook here (URL from an env var) instead of logging.
-        console.log('[leaveMessage]', JSON.stringify({ at: new Date().toISOString(), name, email, message }));
-        return { sent: true };
+      description: 'Prepare a message to Tanishka from the visitor. The visitor then checks it and presses Send in the chat. Only call with a real name, email and message the visitor provided.',
+      inputSchema: jsonSchema({ type: 'object', properties: {
+        name: { type: 'string' }, email: { type: 'string' }, message: { type: 'string' },
+        topic: { type: 'string', enum: TOPICS, description: 'Optional: what the message is about, if clear' } }, required: ['name', 'email', 'message'] }),
+      execute: async input => {
+        const v = validate({ ...input, source: 'assistant' });
+        if (v.fields) return { ready: false, needs: Object.keys(v.fields).map(k => NEEDS[k]) };
+        const { name, email, message, topic } = v.data;
+        return { ready: true, name, email, message, topic };
       }
     })
   };

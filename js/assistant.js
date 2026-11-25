@@ -36,7 +36,8 @@
       <summary data-hover>How it's built</summary>
       <ul>
         <li><b>Google Gemini</b> (a Flash model) writes the answers</li>
-        <li><b>Vercel AI SDK</b> with tool calling: profile search, job-fit check, open a project, leave a message</li>
+        <li><b>Vercel AI SDK</b> with tool calling: profile search, job-fit check, open a project, prepare a message</li>
+        <li><b>Messages</b> you send go through the same AI workflow as the contact form (Gemini sorts them, Gmail delivers them)</li>
         <li><b>Retrieval</b> from one profile file built only from this site's content</li>
         <li><b>A Vercel serverless function</b> keeps the API key private, with rate limits and a timeout</li>
       </ul>
@@ -147,6 +148,42 @@
     el.insertBefore(box, $('.ai-steps', el));
   };
 
+  /* ---------- a message to Tanishka: the visitor checks it and presses Send, which runs the contact workflow
+     (/api/contact, the same as the form: bot check, limit, AI sorting, emails) and shows the same diagram, smaller ---------- */
+  const renderMessage = (bot, d) => {
+    const cf = window.contactFlow; if (!cf) return;
+    const card = document.createElement('div'); card.className = 'ai-mail';
+    card.innerHTML = `<p class="ai-fit-title">Message to Tanishka</p>
+      <dl>
+        <div><dt>From</dt><dd>${esc(d.name)} · ${esc(d.email)}</dd></div>
+        ${d.topic ? `<div><dt>About</dt><dd>${esc(d.topic)}</dd></div>` : ''}
+        <div><dt>Message</dt><dd class="ai-mail-msg">${esc(d.message)}</dd></div>
+      </dl>
+      <div class="ai-mail-ts" hidden></div>
+      <div class="ai-mail-acts"><button class="ai-mail-send" type="button" data-hover>Send to Tanishka</button><button class="ai-mail-no" type="button" data-hover>Don't send</button></div>
+      <p class="ai-mail-err" role="alert"></p>`;
+    bot.insertBefore(card, $('.ai-steps', bot));
+    const acts = $('.ai-mail-acts', card), err = $('.ai-mail-err', card), sendB = $('.ai-mail-send', card);
+    const guard = cf.makeGuard($('.ai-mail-ts', card)); guard.init();
+    $('.ai-mail-no', card).addEventListener('click', () => { acts.remove(); $('.ai-mail-ts', card).remove(); err.textContent = ''; card.insertAdjacentHTML('beforeend', '<p class="ai-mail-note">Not sent.</p>'); });
+    sendB.addEventListener('click', async () => {
+      err.textContent = ''; sendB.disabled = true; sendB.textContent = 'Checking…';
+      const chk = await guard.check(10000);
+      sendB.disabled = false; sendB.textContent = 'Send to Tanishka';
+      if (chk.status === 'pending' || chk.status === 'error') { err.innerHTML = cf.withMail(cf.CHECK_MSG[chk.status].replace('email me directly', 'email Tanishka directly')); return; }
+      const token = chk.token;
+      acts.hidden = true;
+      const box = document.createElement('div'); card.append(box);
+      const flow = cf.renderFlow(box, { mini: true }); scrollDown();
+      const r = await cf.submit({ name: d.name, email: d.email, topic: d.topic || '', message: d.message, website: '', source: 'assistant', ...(token ? { token } : {}) });
+      if (r.kind === 'invalid') { box.remove(); acts.hidden = false; guard.reset(); err.textContent = Object.values(r.fields).join(' '); return; }
+      await cf.playFlow(flow, r, cf.succeeded(r) ? [] : [{ label: 'Try again', run: () => { box.remove(); acts.hidden = false; guard.reset(); sendB.focus(); } }]);
+      if (cf.succeeded(r)) $('.ai-mail-ts', card)?.remove();
+      scrollDown();
+    });
+    scrollDown();
+  };
+
   /* ---------- opening a project on the page (desktop: beside the panel; phone: collapse the panel first) ---------- */
   function showProject(id) {
     if (!window.expandCard || !window.expandCard(id)) return;
@@ -203,6 +240,7 @@
             else if (m.t === 'step-done') { const li = $(`li[data-id="${CSS.escape(m.id)}"]`, stepsEl); if (li) { li.className = 'done'; if (m.detail) { const s = $('span', li) || li.appendChild(document.createElement('span')); s.textContent = m.detail; } } }
             else if (m.t === 'open') showProject(m.id);
             else if (m.t === 'jobfit') renderJobFit(bot, m);
+            else if (m.t === 'message') renderMessage(bot, m);
             else if (m.t === 'error') error = m.message;
             else if (m.t === 'done' && typeof m.remaining === 'number') showLeft(m.remaining);
           }
@@ -225,7 +263,7 @@
     const textEl = $('.ai-text', bot);
     if (error && !answer) { bot.classList.add('err'); textEl.innerHTML = `<p>${esc(error)}</p>`; }
     else if (error) textEl.insertAdjacentHTML('beforeend', `<p class="ai-err">${esc(error)}</p>`);
-    else if (!answer && !$('.ai-fit', bot)) textEl.innerHTML = `<p>${esc("I don't have that information, but I can pass your question to Tanishka.")}</p>`;
+    else if (!answer && !$('.ai-fit, .ai-mail', bot)) textEl.innerHTML = `<p>${esc("I don't have that information, but I can pass your question to Tanishka.")}</p>`;
     announce.textContent = (textEl.textContent || '').trim().slice(0, 400);
     scrollDown();
   }

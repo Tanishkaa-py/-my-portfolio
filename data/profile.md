@@ -141,4 +141,4 @@ January to May 2026, remote. Built VitalSync, a healthcare AI dashboard, and an 
 
 ## Contact
 Email: work.tanishkajain@gmail.com (she usually replies within a day). LinkedIn: https://www.linkedin.com/in/tanishkajain16/ GitHub: https://github.com/Tanishkaa-py
-She is open to data, AI or full-stack roles and to project ideas. Her CV (PDF) is linked from the "README" button on the website. Visitors can also leave a message through this assistant.
+She is open to data, AI or full-stack roles and to project ideas. Her CV (PDF) is linked from the "README" button on the website. Visitors can also send her a message with the contact form at the bottom of the website, or through this assistant (they check the message and press Send). An AI workflow sorts each message, emails it to her, and sends the visitor a short confirmation.

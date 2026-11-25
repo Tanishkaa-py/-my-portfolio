@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,600;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=10">
 </head>
 <body>
 
@@ -231,8 +231,54 @@
     <span class="mono">(05) Contact</span>
     <h2 class="huge">Let's build<br>something <em>useful.</em></h2>
     <div class="contact-row">
-      <p>Hiring for a data, AI or full-stack role, or have a project in mind? I usually reply within a day.</p>
+      <div class="contact-main">
+        <p class="contact-lede">Hiring for a data, AI or full-stack role, or have a project in mind? I usually reply within a day.</p>
+        <!-- the form and, after sending, the live workflow diagram (js/contact.js, api/contact.js) -->
+        <div class="cf-box" id="contactBox">
+          <form class="cf" id="contactForm" novalidate aria-labelledby="cfTitle">
+            <h3 class="sr-only" id="cfTitle">Send Tanishka a message</h3>
+            <div class="cf-grid">
+              <div class="cf-field">
+                <label for="cfName">Name</label>
+                <input id="cfName" name="name" type="text" autocomplete="name" maxlength="80" required aria-describedby="cfNameErr">
+                <p class="cf-err" id="cfNameErr"></p>
+              </div>
+              <div class="cf-field">
+                <label for="cfEmail">Email</label>
+                <input id="cfEmail" name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required aria-describedby="cfEmailErr">
+                <p class="cf-err" id="cfEmailErr"></p>
+              </div>
+              <div class="cf-field cf-wide">
+                <label for="cfTopic">What's this about? <span class="cf-opt">Optional</span></label>
+                <div class="cf-select">
+                  <select id="cfTopic" name="topic">
+                    <option value="">Choose one</option>
+                    <option>Job opportunity</option>
+                    <option>Freelance project</option>
+                    <option>Collaboration</option>
+                    <option>Just saying hi</option>
+                  </select>
+                </div>
+              </div>
+              <div class="cf-field cf-wide">
+                <label for="cfMsg">Message</label>
+                <textarea id="cfMsg" name="message" rows="5" maxlength="2000" required aria-describedby="cfMsgErr" data-lenis-prevent></textarea>
+                <p class="cf-meta"><span class="cf-err" id="cfMsgErr"></span><span class="cf-count" id="cfMsgCount" aria-hidden="true">0 / 2000</span></p>
+              </div>
+            </div>
+            <!-- honeypot: hidden from people and screen readers; bots fill it in -->
+            <div class="cf-hp" aria-hidden="true"><label for="cfWebsite">Leave this empty</label><input id="cfWebsite" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+            <div class="cf-ts" hidden></div>
+            <div class="cf-foot">
+              <button class="btn primary cf-send" type="submit" data-hover>Send message <span aria-hidden="true">→</span></button>
+              <p class="cf-formerr" id="cfFormErr" role="alert"></p>
+            </div>
+          </form>
+          <div class="cf-flow" id="contactFlow" hidden></div>
+        </div>
+      </div>
       <div class="contact-links">
+        <p class="mono contact-alt">Or reach me directly</p>
         <button class="clink" id="copyEmail" type="button" data-hover><span>work.tanishkajain@gmail.com</span><span class="k" id="copyLabel">Copy</span></button>
         <a class="clink" href="https://www.linkedin.com/in/tanishkajain16/" target="_blank" rel="noopener" data-hover><span>LinkedIn</span><span class="k">↗</span></a>
         <a class="clink" href="https://github.com/Tanishkaa-py" target="_blank" rel="noopener" data-hover><span>GitHub</span><span class="k">↗</span></a>
@@ -266,8 +312,9 @@
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-<script src="js/main.js"></script>
-<script src="js/tour.js"></script>
-<script src="js/assistant.js"></script>
+<script src="js/main.js?v=10"></script>
+<script src="js/contact.js?v=10"></script>
+<script src="js/tour.js?v=10"></script>
+<script src="js/assistant.js?v=10"></script>
 </body>
 </html>
